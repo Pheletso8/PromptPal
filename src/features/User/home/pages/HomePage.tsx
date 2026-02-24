@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import logo from '../../../../assets/promptpal.png';
+import { Link } from 'react-router-dom';
 
 // Mock Data for the UI
 const COURSES = [
@@ -88,7 +89,7 @@ const HomePage: React.FC = () => {
           </div>
 
           {/* --- Section 3: Course Grid --- */}
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+          <Link to="/course/:id" className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
             {filteredCourses.map(course => (
               <div 
                 key={course.id}
@@ -116,7 +117,7 @@ const HomePage: React.FC = () => {
                 </div>
               </div>
             ))}
-          </div>
+          </Link>
         </section>
 
         {/* --- Added Value: Relevant Widgets for Grade 7 --- */}

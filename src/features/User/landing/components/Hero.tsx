@@ -1,4 +1,5 @@
 import logo from '../../../../assets/promptpal.png';
+import { Link } from 'react-router-dom';
 
 export const Hero = () => (
   <header className="relative flex flex-col items-center text-center pt-32 pb-20 px-4 min-h-[90vh] justify-center">
@@ -20,9 +21,9 @@ export const Hero = () => (
       turn AI into your ultimate advantage.
     </p>
     <div className="flex flex-col items-center space-y-6">
-      <button className="bg-blue-600 text-white px-10 py-4 rounded-full font-bold text-lg hover:bg-blue-500 hover:shadow-[0_0_20px_rgba(37,99,235,0.4)] transition-all">
+      <Link to="/home" className="bg-blue-600 text-white px-10 py-4 rounded-full font-bold text-lg hover:bg-blue-500 hover:shadow-[0_0_20px_rgba(37,99,235,0.4)] transition-all">
         Start Building
-      </button>
+      </Link>
       <div className="inline-flex items-center px-4 py-2 rounded-full border border-blue-500/30 bg-blue-500/10 text-blue-400 text-sm font-medium backdrop-blur-sm">
         <span className="mr-2">🇿🇦</span> Grade 7 Learners: Use This Opportunity!
       </div>
