@@ -1,132 +1,151 @@
 import React, { useState } from 'react';
-import logo from '../../../../assets/promptpal.png';
+import { useParams } from 'react-router-dom';
+import { COURSES } from '../../../../data/courseData';
+import { DetailNav } from '../components/DetailNav';
+import { LearningGuardrails } from '../components/LearningGuardrails';
+import { Link } from 'react-router-dom';
 
 const CourseDetail: React.FC = () => {
+  const { id } = useParams();
   const [copied, setCopied] = useState<string | null>(null);
 
-  const copyToClipboard = (text: string, id: string) => {
+  // Find the specific course data based on the URL ID
+  const course = COURSES.find(c => c.id === Number(id));
+
+  if (!course) return <div className="text-white p-20 text-center font-bold">Course not found...</div>;
+
+  const copyToClipboard = (text: string, templateId: string) => {
     navigator.clipboard.writeText(text);
-    setCopied(id);
+    setCopied(templateId);
     setTimeout(() => setCopied(null), 2000);
   };
 
-  const templates = [
-    {
-      id: "homework",
-      title: "Homework Helper",
-      scenario: "When you're stuck on a difficult concept and need an explanation.",
-      prompt: "Act as a friendly Grade 7 tutor. Explain the concept of [Topic, e.g., Photosynthesis] using a simple analogy. Don't give me the answer to my homework, but help me understand how it works step-by-step.",
-      icon: "📚"
-    },
-    {
-      id: "research",
-      title: "Research Assistant",
-      scenario: "Starting a project and need to find the most important facts.",
-      prompt: "I am doing a school project on [Topic]. Identify the 5 most important facts I should include. For each fact, explain why it is important for a Grade 7 student to know, and suggest one credible source to look at.",
-      icon: "🔍"
-    },
-    {
-      id: "essay",
-      title: "Writing Partner",
-      scenario: "When you have the ideas but struggle to structure your essay.",
-      prompt: "I am writing a persuasive essay about [Topic]. Based on the following ideas: [List ideas], help me create a 4-paragraph outline including an introduction, two body paragraphs with evidence, and a conclusion.",
-      icon: "✍️"
-    }
-  ];
-
   return (
-    <div className="min-h-screen bg-black text-white font-sans selection:bg-blue-500/30 pb-24">
-      {/* --- Sticky Header --- */}
-      <nav className="fixed top-0 w-full z-50 backdrop-blur-xl border-b border-white/5 bg-black/40 px-8 py-4">
-        <div className="max-w-7xl mx-auto flex justify-between items-center">
-          <div className="flex items-center space-x-3">
-            <img src={logo} alt="logo" className="w-8 h-8 rounded-lg" />
-            <span className="font-black tracking-tighter text-xl">Prompt<span className="text-blue-500">Pal</span></span>
-          </div>
-          <button className="text-sm font-bold text-gray-400 hover:text-white transition">Back to Dashboard</button>
-        </div>
-      </nav>
+    <div className="min-h-screen bg-black text-white font-sans selection:bg-blue-500/30 pb-24 relative overflow-hidden">
+      
+      {/* --- FIXED SOUTH AFRICAN BACKGROUND LAYER --- */}
+      <div className="fixed inset-0 z-0 pointer-events-none">
+        {/* 1. Dynamic Course Image - REDUCED BLUR & INCREASED OPACITY */}
+        <div 
+          className="absolute inset-0 bg-cover bg-center bg-no-repeat transition-all duration-1000"
+          style={{ 
+            backgroundImage: `url(${course.image})`,
+            filter: 'blur(15px)', // DECREASED from 60px to 15px so you can see the image
+            transform: 'scale(1.05)',
+            opacity: 0.2// INCREASED from 0.35 to 0.5 to make it pop
+          }}
+        />
+        
+        {/* 2. South African Subtle Pattern Overlay */}
+        <div className="absolute inset-0 opacity-[0.04] bg-[url('https://www.transparenttextures.com')]" />
 
-      <main className="max-w-5xl mx-auto px-8 pt-32">
-        {/* --- Why Prompt Engineering? (Educational Context) --- */}
-        <section className="mb-20 text-center md:text-left md:flex items-center gap-12">
-          <div className="flex-1">
-            <h2 className="text-blue-500 font-bold uppercase tracking-widest text-sm mb-4">The Skill of the Future</h2>
-            <h1 className="text-4xl md:text-5xl font-extrabold mb-6 leading-tight">
-              Why learn <span className="text-blue-500">Prompting?</span>
-            </h1>
-            <div className="space-y-4 text-gray-400 text-lg leading-relaxed">
-              <p>
-                Prompt Engineering isn't just about "talking to robots." It's a new form of <span className="text-white font-medium">critical thinking</span>. By learning to craft precise instructions, you develop the ability to decompose complex problems into smaller, manageable tasks.
-              </p>
-              <p>
-                For Grade 7 learners, this is a gateway to <span className="text-white font-medium">digital fluency</span>. It teaches you how to iterate, refine your thoughts, and collaborate with AI to enhance your own creativity—not replace it.
-              </p>
+        {/* 3. The Dark Gradient - DECREASED DARKNESS AT THE TOP */}
+        <div className="absolute inset-0 bg-linear-to-b from-black/2 via-black/60 to-black" />
+      </div>
+
+      {/* --- CONTENT LAYER --- */}
+      <div className="relative z-10">
+        <DetailNav />
+
+        <main className="max-w-5xl mx-auto px-8 pt-32">
+          {/* Header Card / Progress */}
+          <div className="flex items-center justify-between mb-12 bg-white/5 p-6 rounded-3xl border border-white/10 backdrop-blur-xl shadow-2xl">
+            <div className="flex items-center space-x-5">
+              <span className="bg-blue-600 text-[10px] font-black px-3 py-1 rounded-full tracking-tighter uppercase shadow-lg shadow-blue-600/20">
+                {course.tag}
+              </span>
+              <h1 className="text-2xl font-black tracking-tight italic">{course.title}</h1>
             </div>
-          </div>
-          <div className="hidden md:block w-1 h-64 bg-gradient-to-b from-transparent via-blue-500/20 to-transparent" />
-        </section>
-
-        {/* --- Video Section --- */}
-        <section className="mb-24">
-          <div className="relative group rounded-[2.5rem] overflow-hidden border border-white/10 shadow-2xl bg-white/5 aspect-video flex items-center justify-center">
-            {/* Mock Video Placeholder */}
-            <div className="absolute inset-0 bg-gradient-to-tr from-blue-600/20 to-purple-600/20 z-0" />
-            <div className="relative z-10 text-center">
-              <button className="w-20 h-20 bg-white text-black rounded-full flex items-center justify-center pl-1 hover:scale-110 transition-transform shadow-2xl shadow-blue-500/20">
-                <span className="text-2xl">▶</span>
-              </button>
-              <p className="mt-4 font-bold text-white/60 uppercase tracking-widest text-xs">Watch: Mastery in 5 Minutes</p>
-            </div>
-          </div>
-        </section>
-
-        {/* --- Prompt Templates Section --- */}
-        <section className="mb-20">
-          <div className="flex items-center justify-between mb-12">
-            <div>
-              <h2 className="text-3xl font-bold mb-2">Prompt Templates</h2>
-              <p className="text-gray-500">Copy these to your favorite AI to start learning smarter.</p>
+            <div className="text-right">
+              <p className="text-[10px] text-gray-500 uppercase font-black tracking-widest">Progress</p>
+              <p className="text-xl font-black text-blue-400">{course.progress}%</p>
             </div>
           </div>
 
-          <div className="grid gap-6">
-            {templates.map((t) => (
-              <div key={t.id} className="group p-8 rounded-3xl border border-white/5 bg-white/[0.02] hover:bg-white/[0.04] transition-all">
-                <div className="flex items-start justify-between gap-6">
-                  <div className="flex-1">
-                    <div className="flex items-center space-x-3 mb-4">
-                      <span className="text-2xl">{t.icon}</span>
-                      <h4 className="text-xl font-bold">{t.title}</h4>
-                    </div>
-                    <p className="text-gray-500 text-sm mb-6">{t.scenario}</p>
-                    <div className="relative p-6 rounded-2xl bg-black/40 border border-white/5 font-mono text-sm text-blue-100/80 leading-relaxed">
-                      {t.prompt}
-                    </div>
-                  </div>
-                  <button 
-                    onClick={() => copyToClipboard(t.prompt, t.id)}
-                    className={`mt-1 px-4 py-2 rounded-xl text-xs font-bold transition-all border ${copied === t.id ? 'bg-green-500/20 border-green-500/50 text-green-400' : 'bg-white/5 border-white/10 text-gray-400 hover:bg-white/10'}`}
-                  >
-                    {copied === t.id ? 'COPIED!' : 'COPY PROMPT'}
-                  </button>
+          {/* Educational Context Section */}
+          <section className="mb-16 max-w-3xl">
+            <h2 className="text-blue-500 font-black uppercase tracking-[0.3em] text-[10px] mb-4">Why we learn this</h2>
+            <p className="text-gray-300 text-xl leading-relaxed font-light italic">
+              "{course.whyLearn}"
+            </p>
+          </section>
+
+          {/* Lesson Video Section */}
+          <section className="mb-20 rounded-[2.5rem] overflow-hidden border border-white/5 aspect-video bg-black/60 shadow-2xl group">
+             <iframe 
+               className="w-full h-full opacity-90 group-hover:opacity-100 transition-opacity duration-700" 
+               src={course.videoUrl} 
+               title="Lesson Video" 
+               frameBorder="0" 
+               allowFullScreen
+             ></iframe>
+          </section>
+
+          {/* Prompting Lab Section */}
+          <section className="mb-20 p-10 rounded-[2.5rem] border border-blue-500/20 bg-blue-500/5 backdrop-blur-md">
+          <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-8 gap-4">
+              <div className="flex items-center space-x-3">
+                <span className="text-3xl">🧪</span>
+                <div>
+                  <h3 className="text-xs font-black text-blue-400 uppercase tracking-widest">Prompting Lab</h3>
+                  <p className="text-xl font-bold">{course.lessonTopic}</p>
                 </div>
               </div>
-            ))}
-          </div>
-        </section>
+              
+              {/* NEW: Contextual AI CTA */}
+              <Link 
+                to="/ai-chatbot" 
+                className="bg-blue-600 text-white px-6 py-2 rounded-xl text-xs font-black italic uppercase hover:bg-blue-500 transition-all flex items-center gap-2"
+              >
+                🚀 Test in AI Lab
+              </Link>
+            </div>
 
-        {/* --- Added: Learning Guardrails (Crucial for Grade 7) --- */}
-        <section className="rounded-3xl border border-orange-500/20 bg-orange-500/5 p-8 flex items-start gap-6">
-          <div className="text-3xl">⚠️</div>
-          <div>
-            <h4 className="text-lg font-bold text-orange-400 mb-2">Study Safely & Honestly</h4>
-            <p className="text-gray-400 text-sm leading-relaxed">
-              AI is a powerful <span className="text-white">tutor</span>, but not a replacement for your brain! Always check the facts the AI gives you, never use it to cheat on tests, and ensure your teacher allows AI use for specific assignments.
-            </p>
-          </div>
-        </section>
-      </main>
+            <div className="grid gap-6">
+              {course.templates.map((t) => (
+                <div key={t.id} className="p-6 rounded-2xl bg-black/60 border border-white/5 group hover:border-blue-500/30 transition-all duration-300">
+                  <div className="flex justify-between items-start mb-4">
+                    <div className="flex items-center space-x-3">
+                      <span className="text-xl">{t.icon}</span>
+                      <span className="text-sm font-black text-white/90 uppercase tracking-tighter italic">{t.title}</span>
+                    </div>
+                    <button 
+                      onClick={() => copyToClipboard(t.prompt, t.id)}
+                      className="text-[10px] font-black text-blue-500 hover:text-white uppercase tracking-widest transition-all"
+                    >
+                      {copied === t.id ? 'Prompt Copied!' : 'Copy Template'}
+                    </button>
+                  </div>
+                  <div className="relative p-5 rounded-xl bg-white/2 border border-white/5">
+                    <p className="font-mono text-sm text-gray-400 leading-relaxed italic">{t.prompt}</p>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </section>
+
+          {/* Quiz Section */}
+          <section className="mb-20 pt-16 border-t border-white/10">
+            <h3 className="text-3xl font-black italic mb-10 tracking-tighter text-white">Knowledge Check</h3>
+            <div className="bg-white/3 p-10 rounded-[2.5rem] border border-white/5 backdrop-blur-md">
+              <p className="text-xl font-medium mb-8 text-gray-200 leading-snug">{course.assessment.question}</p>
+              <div className="grid gap-4">
+                {course.assessment.options.map((opt, i) => (
+                  <button 
+                    key={i} 
+                    className="w-full text-left p-5 rounded-2xl border border-white/5 bg-white/5 hover:border-blue-500/50 hover:bg-blue-500/5 transition-all text-sm font-medium group"
+                  >
+                    <span className="mr-4 opacity-30 group-hover:opacity-100 transition-opacity">{i + 1}.</span>
+                    {opt}
+                  </button>
+                ))}
+              </div>
+            </div>
+          </section>
+
+          <LearningGuardrails />
+        </main>
+      </div>
     </div>
   );
 };
