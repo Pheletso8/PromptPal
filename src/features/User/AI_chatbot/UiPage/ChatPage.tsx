@@ -1,41 +1,101 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
+import ReactMarkdown from 'react-markdown';
+import remarkMath from 'remark-math';
+import rehypeKatex from 'rehype-katex';
+import 'katex/dist/katex.min.css'; // Required for LaTeX styling
 import { ChatHeader } from '../components/ChatHeader';
-import { ChatMessage } from '../components/ChatMessage';
 import { ChatInput } from '../components/ChatInput';
 
-const ChatPage: React.FC = () => {
-  const [messages, setMessages] = useState([
-    { role: 'assistant', content: "Holo! 🇿🇦 I'm your PromptPal AI tutor. I'm ready to help you with Maths, Science, or even just practice your prompting. What's on your mind today?" }
-  ]);
+interface Message {
+  role: 'user' | 'assistant';
+  content: string;
+}
 
-  const handleSend = (text: string) => {
-    const userMsg = { role: 'user', content: text };
-    setMessages(prev => [...prev, userMsg]);
-    
-    // Simulate AI thinking
-    setTimeout(() => {
-      setMessages(prev => [...prev, { 
-        role: 'assistant', 
-        content: "That's a great question! Let's break that down into steps like we learned in the 'Role' framework. First, what do you think the most important part is?" 
-      }]);
-    }, 1000);
+const ChatPage: React.FC = () => {
+  const [messages, setMessages] = useState<Message[]>([
+    { role: 'assistant', content: "Holo! 🇿🇦 I'm **PromptPal**. Ready for some Maths or Science? Example: Ask me about $E=mc^2$ or fractions like $\\frac{1}{2}$." }
+  ]);
+  const [isLoading, setIsLoading] = useState(false);
+  const messagesEndRef = useRef<HTMLDivElement>(null);
+
+  // Auto-scroll to bottom whenever messages change
+  const scrollToBottom = () => {
+    messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
   };
 
-  return (
-    <div className="min-h-screen bg-black text-white font-sans selection:bg-blue-500/30">
+  useEffect(() => {
+    scrollToBottom();
+  }, [messages, isLoading]);
+
+  const handleSend = async (text: string) => {
+    if (!text.trim()) return;
+
+    const userMsg: Message = { role: 'user', content: text };
+    setMessages(prev => [...prev, userMsg]);
+    setIsLoading(true);
+
+    try {
+      const response = await fetch('http://localhost:8000/ask', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ question: text }),
+      });
+
+      if (!response.ok) throw new Error("Server error");
+
+      const result = await response.json();
+      
+      // Adjust result.data.hint based on your specific backend JSON structure
+      const assistantResponse = result.data?.hint || result.hint || "I couldn't generate a hint.";
+
+      setMessages(prev => [...prev, { 
+        role: 'assistant', 
+        content: assistantResponse 
+      }]);
+    } catch (err) {
+      setMessages(prev => [...prev, { 
+        role: 'assistant', 
+        content: "Eish, something went wrong with the connection. Is the Docker backend running?" 
+      }]);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+    return (
+    <div className="min-h-screen bg-black text-white font-sans">
       <ChatHeader />
       
-      {/* Decorative Glows */}
-      <div className="fixed top-0 left-1/2 -translate-x-1/2 w-full h-125 bg-blue-600/5 blur-[120px] pointer-events-none" />
-
       <main className="max-w-3xl mx-auto px-6 pt-32 pb-48">
-        <div className="space-y-2">
+        <div className="space-y-6">
           {messages.map((msg, i) => (
-            <ChatMessage key={i} role={msg.role as any} content={msg.content} />
+            <div key={i} className={`flex ${msg.role === 'user' ? 'justify-end' : 'justify-start'}`}>
+              {/* Using ChatMessage if you want, or keeping the clean div style below */}
+              <div className={`max-w-[85%] p-4 rounded-2xl ${msg.role === 'user' ? 'bg-blue-600' : 'bg-gray-900 border border-gray-800'}`}>
+                
+                {/* FIX 1: Wrap ReactMarkdown in a div for styling to solve Error 2322 */}
+                <div className="prose prose-invert max-w-none text-sm md:text-base">
+                  <ReactMarkdown 
+                    remarkPlugins={[remarkMath]} 
+                    rehypePlugins={[rehypeKatex]}
+                  >
+                    {msg.content}
+                  </ReactMarkdown>
+                </div>
+
+              </div>
+            </div>
           ))}
+          
+          {isLoading && (
+            <div className="flex items-center space-x-2 text-blue-400 animate-pulse pl-4">
+              <span className="text-sm font-medium">PromptPal is thinking...</span>
+            </div>
+          )}
+          <div ref={messagesEndRef} />
         </div>
       </main>
 
+      {/* FIX 2: Only pass props your ChatInput actually accepts (removed 'disabled') */}
       <ChatInput onSend={handleSend} />
     </div>
   );
