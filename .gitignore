@@ -1,3 +1,6 @@
+# secrets which no one should have access to
+.env
+
 # Logs
 logs
 *.log
