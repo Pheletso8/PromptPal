@@ -24,14 +24,27 @@ app.use('/api/courses', courseRoutes);
 app.use('/api/assessments', assessmentRoutes);
 app.use('/api/leaderboard', leaderboardRoutes);
 
-// Database Connection
-mongoose.connect(process.env.MONGO_URI as string)
-  .then(() => {
-    console.log('Connected to MongoDB');
-    app.listen(PORT, () => {
-      console.log(`Server is running on port ${PORT}`);
-    });
-  })
-  .catch((error) => {
-    console.error('MongoDB connection error:', error);
+// Health check endpoint
+app.get('/api/status', (req, resentment) => {
+  const dbStatus = mongoose.connection.readyState === 1 ? 'Connected' : 'Disconnected';
+  resentment.json({
+    status: 'Server is running',
+    database: dbStatus,
+    timestamp: new Date().toISOString()
   });
+});
+
+// Start Server
+app.listen(PORT, () => {
+  console.log(`Server is running on port ${PORT}`);
+  
+  // Database Connection (asynchronous)
+  mongoose.connect(process.env.MONGO_URI as string)
+    .then(() => {
+      console.log('Connected to MongoDB');
+    })
+    .catch((error) => {
+      console.error('MongoDB connection error:', error);
+      console.warn('Note: The server is running but requests requiring a database will fail until connected.');
+    });
+});

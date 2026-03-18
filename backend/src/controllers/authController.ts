@@ -63,16 +63,22 @@ export const authUser = async (req: Request, res: Response): Promise<void> => {
   try {
     const { email, password } = req.body;
 
-    // Find user by email
+    console.log("LOGIN INPUT:", email, password);
+
     const user = await User.findOne({ email });
+
+    console.log("USER FROM DB:", user);
 
     if (!user) {
       res.status(401).json({ message: 'Invalid email or password' });
       return;
     }
 
-    // Compare the plain-text password with the stored bcrypt hash
+    console.log("STORED HASH:", user.password);
+
     const isMatch = await bcrypt.compare(password, user.password as string);
+
+    console.log("PASSWORD MATCH:", isMatch);
 
     if (isMatch) {
       res.json({
@@ -88,7 +94,7 @@ export const authUser = async (req: Request, res: Response): Promise<void> => {
       res.status(401).json({ message: 'Invalid email or password' });
     }
   } catch (error) {
-    console.error('Login error:', error);
+    console.error('🔥 LOGIN ERROR:', error);
     res.status(500).json({ message: 'Server error' });
   }
 };
