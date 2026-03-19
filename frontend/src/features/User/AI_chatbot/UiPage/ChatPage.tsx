@@ -2,11 +2,12 @@ import React, { useState, useEffect, useRef } from 'react';
 import ReactMarkdown from 'react-markdown';
 import remarkMath from 'remark-math';
 import rehypeKatex from 'rehype-katex';
-import 'katex/dist/katex.min.css'; 
+import 'katex/dist/katex.min.css';
 import { ChatHeader } from '../components/ChatHeader';
 import { ChatInput } from '../components/ChatInput';
 import { Mermaid } from '../components/Mermaid';
-import { useVoice } from '../../hooks/useVoice';
+
+
 
 interface Message {
   role: 'user' | 'assistant';
@@ -14,31 +15,18 @@ interface Message {
   diagram?: string;
 }
 
+// ... (keep your existing imports)
+
 const ChatPage: React.FC = () => {
-  // 1. ADD MUTE STATE
-  const [isMuted, setIsMuted] = useState(false);
-  
-  // 2. EXTRACT STOP FROM HOOK
-  const { speak, stop } = useVoice(); 
-  
+
   const [messages, setMessages] = useState<Message[]>([
-    { role: 'assistant', content: "Holo! 🇿🇦 I'm **PromptPal**. Ready for some Maths or Science? Example: Ask me about $E=mc^2$ or fractions like $\\frac{1}{2}$." }
+    { role: 'assistant', content: "Holo! 🇿🇦 I'm **PromptPal**. Ready for some Maths or Science?" }
   ]);
   const [isLoading, setIsLoading] = useState(false);
   const messagesEndRef = useRef<HTMLDivElement>(null);
 
-  // 3. EFFECT TO KILL SPEECH INSTANTLY ON MUTE
-  useEffect(() => {
-    if (isMuted) stop();
-  }, [isMuted, stop]);
 
-  const scrollToBottom = () => {
-    messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
-  };
-
-  useEffect(() => {
-    scrollToBottom();
-  }, [messages, isLoading]);
+  useEffect(() => { messagesEndRef.current?.scrollIntoView({ behavior: "smooth" }); }, [messages, isLoading]);
 
   const handleSend = async (text: string) => {
     if (!text.trim()) return;
@@ -48,33 +36,63 @@ const ChatPage: React.FC = () => {
     setIsLoading(true);
 
     try {
-      const response = await fetch('http://localhost:8000/ask', {
+      // NOTE: Using FETCH here because it handles Streams (Reader) better than Axios
+      const response = await fetch('https://multi-agent-system-promptpal.onrender.com', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ question: text }),
       });
 
-      if (!response.ok) throw new Error("Server error");
+      if (!response.body) throw new Error("No response body");
 
-      const result = await response.json();
-      const hintText = result.data?.hint || "Aowa! I couldn't get a hint. Try again?";
-      const diagramCode = result.data?.diagram || "";
+      const reader = response.body.getReader();
+      const decoder = new TextDecoder();
+      let fullText = "";
 
-      setMessages(prev => [...prev, { 
-        role: 'assistant', 
-        content: hintText,
-        diagram: diagramCode 
-      }]);
-      
-      // 4. GUARD SPEECH WITH isMuted STATE
-      if (!isMuted) {
-        speak(hintText, isMuted);
+      // Add empty assistant bubble to fill up as we stream
+      setMessages(prev => [...prev, { role: 'assistant', content: "" }]);
+
+      while (true) {
+        const { done, value } = await reader.read();
+        if (done) break;
+
+        const chunk = decoder.decode(value, { stream: true });
+        const lines = chunk.split("\n\n");
+
+        for (const line of lines) {
+          if (!line.startsWith("data: ")) continue;
+
+          try {
+            const json = JSON.parse(line.replace("data: ", ""));
+
+            if (json.type === "hint_delta") {
+              fullText += json.delta;
+              setMessages(prev => {
+                const updated = [...prev];
+                updated[updated.length - 1] = { ...updated[updated.length - 1], content: fullText };
+                return updated;
+              });
+            }
+
+            if (json.type === "complete") {
+              setMessages(prev => {
+                const updated = [...prev];
+                updated[updated.length - 1] = {
+                  ...updated[updated.length - 1],
+                  content: fullText,
+                  diagram: json.data?.diagram
+                };
+                return updated;
+              });
+            }
+          } catch (err) {
+            console.error("Parse error in chunk:", err);
+          }
+        }
       }
-
     } catch (err) {
-      const errorMsg = "Eish, connection load-shedding! 🔌 Is the Docker backend running?";
-      setMessages(prev => [...prev, { role: 'assistant', content: errorMsg }]);
-      if (!isMuted) speak("Eish, connection load-shedding!", isMuted);
+      console.error("Connection Error:", err);
+      setMessages(prev => [...prev, { role: 'assistant', content: "Eish, connection load-shedding! 🔌 Is the Render backend awake?" }]);
     } finally {
       setIsLoading(false);
     }
@@ -82,35 +100,15 @@ const ChatPage: React.FC = () => {
 
   return (
     <div className="min-h-screen bg-black text-white font-sans selection:bg-blue-500/30">
-      {/* 5. PASS STATE AND TOGGLE TO HEADER */}
-      <ChatHeader 
-        isMuted={isMuted} 
-        onToggleMute={() => setIsMuted(!isMuted)} 
-      />
-      
+      <ChatHeader />
       <main className="max-w-3xl mx-auto px-6 pt-32 pb-48">
         <div className="space-y-8">
           {messages.map((msg, i) => (
             <div key={i} className={`flex ${msg.role === 'user' ? 'justify-end' : 'justify-start'} animate-in fade-in slide-in-from-bottom-4 duration-500`}>
-              <div className={`max-w-[90%] p-6 rounded-3xl ${
-                msg.role === 'user' 
-                  ? 'bg-blue-600 shadow-[0_0_25px_rgba(37,99,235,0.3)]' 
-                  : 'bg-zinc-900 border border-white/5 shadow-2xl'
-              }`}>
-                
+              <div className={`max-w-[90%] p-6 rounded-3xl ${msg.role === 'user' ? 'bg-blue-600 shadow-[0_0_25px_rgba(37,99,235,0.3)]' : 'bg-zinc-900 border border-white/5 shadow-2xl'}`}>
                 <div className="prose prose-invert max-w-none text-sm md:text-base leading-relaxed">
-                  <ReactMarkdown 
-                    remarkPlugins={[remarkMath]} 
-                    rehypePlugins={[rehypeKatex]}
-                    components={{
-                        // @ts-ignore
-                        div: ({node, ...props}) => <div className="my-4 p-4 bg-white/5 rounded-xl border border-white/10" {...props} />
-                    }}
-                  >
-                    {msg.content}
-                  </ReactMarkdown>
+                  <ReactMarkdown remarkPlugins={[remarkMath]} rehypePlugins={[rehypeKatex]}>{msg.content}</ReactMarkdown>
                 </div>
-
                 {msg.diagram && (
                   <div className="mt-6 pt-6 border-t border-white/5">
                     <p className="text-[10px] font-bold text-blue-400 uppercase tracking-widest mb-3 text-center">Interactive Map 🗺️</p>
@@ -120,19 +118,10 @@ const ChatPage: React.FC = () => {
               </div>
             </div>
           ))}
-          
-          {isLoading && (
-            <div className="flex items-center space-x-3 text-blue-400 pl-4">
-               <div className="w-2 h-2 bg-blue-500 rounded-full animate-bounce [animation-delay:-0.3s]"></div>
-               <div className="w-2 h-2 bg-blue-500 rounded-full animate-bounce [animation-delay:-0.15s]"></div>
-               <div className="w-2 h-2 bg-blue-500 rounded-full animate-bounce"></div>
-               <span className="text-xs font-bold uppercase tracking-widest">Sharp-sharp, thinking...</span>
-            </div>
-          )}
+          {isLoading && <div className="text-blue-400 pl-4 animate-pulse">Sharp-sharp, thinking...</div>}
           <div ref={messagesEndRef} />
         </div>
       </main>
-
       <ChatInput onSend={handleSend} />
     </div>
   );

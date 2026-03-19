@@ -10,6 +10,7 @@ import { Link } from 'react-router-dom';
 import HomeNav from '../components/HomeNav';
 import ContinueLearning from '../components/ContinueLearning';
 import CourseCard from '../components/CourseCard';
+import CourseCardSkeleton from '../components/CourseCardSkeleton';
 import StatsWidgets from '../components/StatsWidgets';
 import { PromptIntroduction } from '../components/PromptIntroduction';
 import { VideoPlayer } from '../../chapters/components/VideoPlayer';
@@ -100,8 +101,10 @@ const HomePage: React.FC = () => {
 
           {/* Course Grid */}
           {loading && (
-            <div className="flex justify-center py-20">
-              <div className="w-8 h-8 border-2 border-blue-500 border-t-transparent rounded-full animate-spin" />
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+              {[...Array(8)].map((_, i) => (
+                <CourseCardSkeleton key={i} />
+              ))}
             </div>
           )}
           {error && <p className="text-red-400 text-center py-10">{error}</p>}

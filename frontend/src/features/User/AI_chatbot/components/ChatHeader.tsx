@@ -1,13 +1,9 @@
 import logo from '../../../../assets/promptpal.png';
 import { Link } from 'react-router-dom';
 
-// Define the interface for the props
-interface HeaderProps {
-  isMuted: boolean;
-  onToggleMute: () => void;
-}
 
-export const ChatHeader = ({ isMuted, onToggleMute }: HeaderProps) => (
+
+export const ChatHeader = () => (
   <nav className="fixed top-0 w-full z-50 backdrop-blur-xl border-b border-white/5 bg-black/40 px-8 py-4">
     <div className="max-w-7xl mx-auto flex justify-between items-center">
       
@@ -21,19 +17,6 @@ export const ChatHeader = ({ isMuted, onToggleMute }: HeaderProps) => (
       
       {/* Actions Section */}
       <div className="flex items-center gap-6">
-        {/* Voice Toggle Button */}
-        <button 
-          onClick={onToggleMute}
-          title={isMuted ? "Unmute Coach Pal" : "Mute Coach Pal"}
-          className={`text-xl p-2 rounded-xl transition-all ${
-            isMuted 
-            ? "bg-red-500/10 text-red-500 border border-red-500/20" 
-            : "bg-blue-500/10 text-blue-500 border border-blue-500/20"
-          } hover:scale-105 active:scale-95`}
-        >
-          {isMuted ? "🔇" : "🔊"}
-        </button>
-
         {/* Exit Button */}
         <Link 
           to="/home" 

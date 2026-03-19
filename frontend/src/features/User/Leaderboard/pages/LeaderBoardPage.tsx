@@ -8,6 +8,7 @@ import { useState, useEffect } from 'react';
 import { LeaderboardHeader } from '../components/LeaderBoardHeader';
 import { LeaderboardInstructions } from '../components/LeaderBoardInstructions';
 import { LeaderboardRow } from '../components/LeaderBoardRow';
+import LeaderboardRowSkeleton from '../components/LeaderboardRowSkeleton';
 import { DetailNav } from '../../chapters/components/DetailNav';
 import { api, type LeaderboardEntry } from '../../../../utils/api';
 import { useAuth } from '../../../../context/AuthContext';
@@ -37,8 +38,10 @@ const LeaderboardPage: React.FC = () => {
         <LeaderboardHeader />
 
         {loading && (
-          <div className="flex justify-center py-20">
-            <div className="w-8 h-8 border-2 border-blue-500 border-t-transparent rounded-full animate-spin" />
+          <div className="md:col-span-2 space-y-3">
+            {[...Array(6)].map((_, i) => (
+              <LeaderboardRowSkeleton key={i} />
+            ))}
           </div>
         )}
 
