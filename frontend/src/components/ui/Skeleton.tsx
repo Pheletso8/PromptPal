@@ -7,9 +7,9 @@ interface SkeletonProps {
 export const Skeleton: React.FC<SkeletonProps> = ({ className = "" }) => {
   return (
     <div 
-      className={`bg-white/5 animate-pulse rounded-xl ${className}`}
+      className={`bg-brand-primary/5 animate-pulse rounded-xl ${className}`}
       style={{
-        backgroundImage: 'linear-gradient(90deg, transparent, rgba(255,255,255,0.03), transparent)',
+        backgroundImage: 'linear-gradient(90deg, transparent, rgba(206,56,190,0.05), transparent)',
         backgroundSize: '200% 100%',
       }}
     />

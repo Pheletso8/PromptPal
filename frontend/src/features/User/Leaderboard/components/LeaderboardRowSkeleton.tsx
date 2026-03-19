@@ -2,7 +2,7 @@ import { Skeleton } from '../../../../components/ui/Skeleton';
 
 const LeaderboardRowSkeleton = () => {
   return (
-    <div className="flex items-center justify-between p-4 rounded-2xl border border-white/5 bg-white/2 animate-in fade-in slide-in-from-bottom-2 duration-500">
+    <div className="flex items-center justify-between p-4 rounded-2xl border border-brand-primary/10 bg-white animate-in fade-in slide-in-from-bottom-2 duration-500 shadow-sm">
       <div className="flex items-center gap-4">
         {/* Rank skeleton */}
         <Skeleton className="w-8 h-8 rounded-full" />

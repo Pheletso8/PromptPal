@@ -20,21 +20,21 @@ const HomeNav = () => {
   };
 
   return (
-    <nav className="fixed top-0 w-full z-50 backdrop-blur-xl border-b border-white/5 bg-black/40 px-8 py-4">
+    <nav className="fixed top-0 w-full z-50 backdrop-blur-xl border-b border-brand-primary/10 bg-brand-bg/80 px-8 py-4">
       <div className="max-w-7xl mx-auto flex justify-between items-center">
         <Link to="/home" className="flex items-center space-x-3">
-          <img src={logo} alt="logo" className="w-8 h-8 rounded-lg shadow-lg shadow-blue-500/20" />
-          <span className="font-black tracking-tighter text-xl">
-            Prompt<span className="text-blue-500">Pal</span>
+          <img src={logo} alt="logo" className="w-8 h-8 rounded-lg shadow-lg shadow-brand-primary/10" />
+          <span className="font-black tracking-tighter text-xl text-brand-text">
+            Prompt<span className="text-brand-primary">Pal</span>
           </span>
         </Link>
 
         <div className="flex items-center space-x-4">
           {/* Live user stats */}
           {user && (
-            <div className="hidden md:flex items-center gap-4 text-xs text-gray-400">
-              <span className="text-yellow-400 font-bold">⭐ {user.stars} stars</span>
-              <span className="text-blue-400 font-bold">✅ {user.assessmentsPassed} passed</span>
+            <div className="hidden md:flex items-center gap-4 text-xs">
+              <span className="text-brand-accent brightness-75 font-bold">⭐ {user.stars} stars</span>
+              <span className="text-brand-primary font-bold">✅ {user.assessmentsPassed} passed</span>
             </div>
           )}
           
@@ -43,11 +43,11 @@ const HomeNav = () => {
               to="/admin" 
               className={`flex items-center space-x-2 px-3 py-1.5 rounded-lg border transition-all ${
                 location.pathname.startsWith('/admin') 
-                  ? 'bg-purple-600/10 border-purple-500/50 text-white' 
-                  : 'border-white/10 text-gray-300 hover:border-white/30 hover:bg-white/5'
+                  ? 'bg-brand-primary/10 border-brand-primary/50 text-brand-text' 
+                  : 'border-brand-primary/10 text-brand-text/60 hover:border-brand-primary/30 hover:bg-brand-primary/5'
               }`}
             >
-              <Shield className="w-4 h-4 text-purple-400" />
+              <Shield className="w-4 h-4 text-brand-primary" />
               <span className="hidden sm:inline text-sm font-medium">Admin</span>
             </Link>
           )}
@@ -56,15 +56,15 @@ const HomeNav = () => {
             to="/profile" 
             className={`flex items-center space-x-2 px-3 py-1.5 rounded-lg border transition-all ${
               location.pathname === '/profile' 
-                ? 'bg-blue-600/10 border-blue-500/50 text-white' 
-                : 'border-white/10 text-gray-300 hover:border-white/30 hover:bg-white/5'
+                ? 'bg-brand-primary/10 border-brand-primary/50 text-brand-text' 
+                : 'border-brand-primary/10 text-brand-text/60 hover:border-brand-primary/30 hover:bg-brand-primary/5'
             }`}
           >
-            <div className="w-6 h-6 rounded-full overflow-hidden border border-white/20 bg-gray-800 flex items-center justify-center">
+            <div className="w-6 h-6 rounded-full overflow-hidden border border-brand-primary/20 bg-brand-secondary/20 flex items-center justify-center">
               {user?.profileImage ? (
                 <img src={user.profileImage} alt="Profile" className="w-full h-full object-cover" />
               ) : (
-                <User className="w-4 h-4" />
+                <User className="w-4 h-4 text-brand-text/60" />
               )}
             </div>
             <span className="hidden sm:inline text-sm font-medium">{user?.name?.split(' ')[0]}</span>

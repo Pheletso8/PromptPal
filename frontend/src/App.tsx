@@ -20,8 +20,8 @@ import ManageCourses from './features/admin/pages/ManageCourses';
 const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
   const { user, isLoading } = useAuth();
   if (isLoading) return (
-    <div className="min-h-screen bg-[#050505] flex items-center justify-center">
-      <div className="w-8 h-8 border-2 border-blue-500 border-t-transparent rounded-full animate-spin" />
+    <div className="min-h-screen bg-brand-bg flex items-center justify-center">
+      <div className="w-8 h-8 border-2 border-brand-primary border-t-transparent rounded-full animate-spin" />
     </div>
   );
   return user ? <>{children}</> : <Navigate to="/auth" replace />;

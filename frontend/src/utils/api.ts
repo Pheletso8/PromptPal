@@ -5,7 +5,8 @@
  * The Vite dev proxy (vite.config.ts) forwards /api/* to http://localhost:5000.
  */
 
-const BASE = '/api';
+const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000';
+const BASE = `${API_URL}/api`;
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 export interface AuthUser {

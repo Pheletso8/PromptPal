@@ -7,15 +7,11 @@ import { ChatHeader } from '../components/ChatHeader';
 import { ChatInput } from '../components/ChatInput';
 import { Mermaid } from '../components/Mermaid';
 
-
-
 interface Message {
   role: 'user' | 'assistant';
   content: string;
   diagram?: string;
 }
-
-// ... (keep your existing imports)
 
 const ChatPage: React.FC = () => {
 
@@ -36,8 +32,8 @@ const ChatPage: React.FC = () => {
     setIsLoading(true);
 
     try {
-      // NOTE: Using FETCH here because it handles Streams (Reader) better than Axios
-      const response = await fetch('https://multi-agent-system-promptpal.onrender.com', {
+      const CHAT_API_URL = import.meta.env.VITE_CHAT_API_URL || 'https://multi-agent-system-promptpal.onrender.com';
+      const response = await fetch(CHAT_API_URL, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ question: text }),
@@ -99,26 +95,26 @@ const ChatPage: React.FC = () => {
   };
 
   return (
-    <div className="min-h-screen bg-black text-white font-sans selection:bg-blue-500/30">
+    <div className="min-h-screen bg-brand-bg text-brand-text font-sans selection:bg-brand-primary/30">
       <ChatHeader />
       <main className="max-w-3xl mx-auto px-6 pt-32 pb-48">
         <div className="space-y-8">
           {messages.map((msg, i) => (
             <div key={i} className={`flex ${msg.role === 'user' ? 'justify-end' : 'justify-start'} animate-in fade-in slide-in-from-bottom-4 duration-500`}>
-              <div className={`max-w-[90%] p-6 rounded-3xl ${msg.role === 'user' ? 'bg-blue-600 shadow-[0_0_25px_rgba(37,99,235,0.3)]' : 'bg-zinc-900 border border-white/5 shadow-2xl'}`}>
-                <div className="prose prose-invert max-w-none text-sm md:text-base leading-relaxed">
+              <div className={`max-w-[90%] p-6 rounded-3xl ${msg.role === 'user' ? 'bg-brand-primary text-white shadow-lg shadow-brand-primary/20' : 'bg-white border border-brand-primary/10 shadow-sm'}`}>
+                <div className={`prose ${msg.role === 'user' ? 'prose-invert' : 'prose-neutral'} max-w-none text-sm md:text-base leading-relaxed`}>
                   <ReactMarkdown remarkPlugins={[remarkMath]} rehypePlugins={[rehypeKatex]}>{msg.content}</ReactMarkdown>
                 </div>
                 {msg.diagram && (
-                  <div className="mt-6 pt-6 border-t border-white/5">
-                    <p className="text-[10px] font-bold text-blue-400 uppercase tracking-widest mb-3 text-center">Interactive Map 🗺️</p>
+                  <div className={`mt-6 pt-6 border-t ${msg.role === 'user' ? 'border-white/20' : 'border-brand-primary/10'}`}>
+                    <p className={`text-[10px] font-black uppercase tracking-[0.2em] mb-3 text-center ${msg.role === 'user' ? 'text-white' : 'text-brand-primary'}`}>Interactive Map 🗺️</p>
                     <Mermaid chart={msg.diagram} />
                   </div>
                 )}
               </div>
             </div>
           ))}
-          {isLoading && <div className="text-blue-400 pl-4 animate-pulse">Sharp-sharp, thinking...</div>}
+          {isLoading && <div className="text-brand-primary pl-4 animate-pulse font-black italic uppercase text-xs tracking-widest">Sharp-sharp, thinking...</div>}
           <div ref={messagesEndRef} />
         </div>
       </main>

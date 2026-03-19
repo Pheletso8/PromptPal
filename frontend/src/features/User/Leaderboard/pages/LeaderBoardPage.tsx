@@ -1,9 +1,3 @@
-/**
- * LeaderBoardPage.tsx
- *
- * Fetches the real leaderboard from the backend API.
- * Highlights the logged-in user's row and shows their live rank.
- */
 import { useState, useEffect } from 'react';
 import { LeaderboardHeader } from '../components/LeaderBoardHeader';
 import { LeaderboardInstructions } from '../components/LeaderBoardInstructions';
@@ -30,9 +24,9 @@ const LeaderboardPage: React.FC = () => {
   const myRank = learners.findIndex(l => l._id === user?._id) + 1;
 
   return (
-    <div className="min-h-screen bg-[#050505] text-white font-sans selection:bg-blue-500/30 pb-20">
+    <div className="min-h-screen bg-brand-bg text-brand-text font-sans selection:bg-brand-primary/30 pb-20">
       <DetailNav />
-      <div className="fixed top-0 left-1/4 w-96 h-96 bg-blue-600/10 blur-[120px] pointer-events-none" />
+      <div className="fixed top-0 left-1/4 w-96 h-96 bg-brand-primary/5 blur-[120px] pointer-events-none" />
 
       <main className="max-w-4xl mx-auto px-8 pt-32 relative z-10">
         <LeaderboardHeader />
@@ -62,19 +56,19 @@ const LeaderboardPage: React.FC = () => {
                 />
               ))}
               {learners.length === 0 && (
-                <p className="text-gray-500 text-center py-10">No learners yet. Be the first!</p>
+                <p className="text-brand-text/50 text-center py-10">No learners yet. Be the first!</p>
               )}
             </div>
 
             {/* Sidebar */}
             <aside>
               <LeaderboardInstructions />
-              <div className="p-8 rounded-3xl border border-white/5 bg-white/2 text-center mt-6">
-                <p className="text-gray-500 text-xs font-bold uppercase mb-2">Your World Ranking</p>
-                <p className="text-5xl font-black italic tracking-tighter mb-4">
+              <div className="p-8 rounded-3xl border border-brand-primary/10 bg-white shadow-sm text-center mt-6">
+                <p className="text-brand-text/50 text-xs font-bold uppercase mb-2 text-center">Your World Ranking</p>
+                <p className="text-5xl font-black italic tracking-tighter mb-4 text-brand-primary text-center">
                   {myRank > 0 ? `#${myRank}` : '—'}
                 </p>
-                <p className="text-gray-400 text-sm leading-relaxed">
+                <p className="text-brand-text/60 text-sm leading-relaxed text-center">
                   {myRank > 0 && myRank > 3
                     ? `Pass ${myRank - 3} more assessments to break into the Top 3!`
                     : myRank <= 3 && myRank > 0

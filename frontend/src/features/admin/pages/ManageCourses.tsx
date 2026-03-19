@@ -36,7 +36,6 @@ const ManageCourses = () => {
     try {
       const [coursesData, usersData] = await Promise.all([
         api.getAllCourses(),
-        // Mocking user fetch or using real if exists
         fetch('/api/users', { headers: { 'Authorization': `Bearer ${localStorage.getItem('token')}` } }).then(res => res.json()).catch(() => [])
       ]);
       setCourses(coursesData);
@@ -130,14 +129,14 @@ const ManageCourses = () => {
 
   if (isLoading) {
     return (
-      <div className="min-h-screen bg-[#050505] flex items-center justify-center">
-        <Loader2 className="w-12 h-12 text-blue-500 animate-spin" />
+      <div className="min-h-screen bg-brand-bg flex items-center justify-center">
+        <Loader2 className="w-12 h-12 text-brand-primary animate-spin" />
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen bg-[#050505] text-white">
+    <div className="min-h-screen bg-brand-bg text-brand-text font-sans selection:bg-brand-primary/30">
       <HomeNav />
       
       <main className="max-w-7xl mx-auto pt-32 px-6 pb-20">
@@ -145,17 +144,17 @@ const ManageCourses = () => {
           <div>
             <button 
               onClick={() => navigate('/admin')}
-              className="flex items-center text-gray-400 hover:text-white transition-colors mb-4 group"
+              className="flex items-center text-brand-text/50 hover:text-brand-primary transition-colors mb-4 group font-black text-xs uppercase tracking-widest"
             >
               <ArrowLeft className="w-4 h-4 mr-2 group-hover:-translate-x-1 transition-transform" />
               Back to Stats
             </button>
-            <h1 className="text-4xl font-black tracking-tight mb-2">Manage <span className="text-blue-500">Courses</span></h1>
-            <p className="text-gray-400">Add, edit, or remove curriculum content</p>
+            <h1 className="text-4xl font-black tracking-tight mb-2 text-brand-text italic">Manage <span className="text-brand-primary">Courses</span></h1>
+            <p className="text-brand-text/50 font-medium">Add, edit, or remove curriculum content</p>
           </div>
           <button 
             onClick={handleAddNew}
-            className="px-8 py-4 bg-blue-600 hover:bg-blue-500 text-white rounded-2xl transition-all flex items-center gap-2 font-bold shadow-xl shadow-blue-600/20"
+            className="px-8 py-4 bg-brand-primary hover:opacity-90 text-white rounded-2xl transition-all flex items-center gap-2 font-black italic uppercase tracking-widest shadow-xl shadow-brand-primary/20"
           >
             <Plus className="w-6 h-6" />
             Create New Course
@@ -164,40 +163,40 @@ const ManageCourses = () => {
 
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
           {courses.map((course) => (
-            <div key={course._id} className="bg-white/5 border border-white/10 rounded-3xl overflow-hidden group hover:border-blue-500/30 transition-all flex flex-col">
-              <div className="aspect-video relative overflow-hidden bg-gray-900 flex items-center justify-center">
+            <div key={course._id} className="bg-white border border-brand-primary/10 rounded-3xl overflow-hidden group hover:border-brand-primary/30 transition-all flex flex-col shadow-sm hover:shadow-md">
+              <div className="aspect-video relative overflow-hidden bg-brand-secondary/10 flex items-center justify-center">
                 {course.image ? (
                   <img src={course.image} alt={course.title} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" />
                 ) : (
-                  <ImageIcon className="w-12 h-12 text-gray-700" />
+                  <ImageIcon className="w-12 h-12 text-brand-text/10" />
                 )}
                 <div className="absolute top-4 left-4">
-                  <span className="px-3 py-1 bg-black/60 backdrop-blur-md rounded-full text-[10px] font-black uppercase tracking-widest text-blue-400 border border-blue-500/20">
+                  <span className="px-3 py-1 bg-white/80 backdrop-blur-md rounded-full text-[10px] font-black uppercase tracking-widest text-brand-primary border border-brand-primary/10 shadow-sm">
                     {course.tag}
                   </span>
                 </div>
               </div>
               
               <div className="p-8 flex-grow">
-                <h3 className="text-xl font-bold mb-2">{course.title}</h3>
-                <p className="text-gray-400 text-sm line-clamp-2 mb-6">{course.description}</p>
+                <h3 className="text-xl font-black italic text-brand-text mb-2">{course.title}</h3>
+                <p className="text-brand-text/60 text-sm line-clamp-2 mb-6 font-medium leading-relaxed">{course.description}</p>
                 
-                <div className="flex items-center gap-4 pt-4 border-t border-white/5">
+                <div className="flex items-center gap-4 pt-4 border-t border-brand-primary/5">
                   <button 
                     onClick={() => handleEdit(course)}
-                    className="flex-grow flex items-center justify-center gap-2 py-3 bg-white/5 hover:bg-white/10 border border-white/10 rounded-xl transition-all font-bold text-sm"
+                    className="flex-grow flex items-center justify-center gap-2 py-3 bg-white hover:bg-brand-secondary/5 border border-brand-primary/10 rounded-xl transition-all font-black italic uppercase tracking-widest text-[10px] text-brand-text shadow-sm"
                   >
-                    <Edit2 className="w-4 h-4" /> Edit
+                    <Edit2 className="w-3.5 h-3.5" /> Edit
                   </button>
                   <button 
                     onClick={() => handleAssignClick(course)}
-                    className="flex-grow flex items-center justify-center gap-2 py-3 bg-blue-600/10 hover:bg-blue-600/20 border border-blue-500/20 text-blue-400 rounded-xl transition-all font-bold text-sm"
+                    className="flex-grow flex items-center justify-center gap-2 py-3 bg-brand-primary/10 hover:bg-brand-primary/20 border border-brand-primary/20 text-brand-primary rounded-xl transition-all font-black italic uppercase tracking-widest text-[10px]"
                   >
-                    <Users className="w-4 h-4" /> Assign
+                    <Users className="w-3.5 h-3.5" /> Assign
                   </button>
                   <button 
                     onClick={() => handleDelete(course._id)}
-                    className="p-3 bg-red-500/10 hover:bg-red-500/20 border border-red-500/20 text-red-400 rounded-xl transition-all"
+                    className="p-3 bg-red-500/10 hover:bg-red-500/20 border border-red-500/20 text-red-500 rounded-xl transition-all"
                   >
                     <Trash2 className="w-4 h-4" />
                   </button>
@@ -210,17 +209,17 @@ const ManageCourses = () => {
 
       {/* Edit/Create Modal */}
       {isModalOpen && (
-        <div className="fixed inset-0 z-[100] flex items-center justify-center p-6 backdrop-blur-xl bg-black/60 animate-in fade-in duration-300">
-          <div className="bg-[#0f0f0f] border border-white/10 w-full max-w-4xl max-h-[90vh] overflow-y-auto rounded-[2.5rem] shadow-2xl relative">
-            <div className="sticky top-0 bg-[#0f0f0f]/80 backdrop-blur-md p-8 border-b border-white/5 flex justify-between items-center z-10">
-              <h2 className="text-2xl font-black tracking-tight">
-                {editingCourse._id ? 'Edit' : 'Create'} <span className="text-blue-500">Course</span>
+        <div className="fixed inset-0 z-[100] flex items-center justify-center p-6 backdrop-blur-xl bg-brand-bg/60 animate-in fade-in duration-300">
+          <div className="bg-white border border-brand-primary/10 w-full max-w-4xl max-h-[90vh] overflow-y-auto rounded-[2.5rem] shadow-2xl relative">
+            <div className="sticky top-0 bg-white/90 backdrop-blur-md p-8 border-b border-brand-primary/5 flex justify-between items-center z-10">
+              <h2 className="text-2xl font-black tracking-tight italic text-brand-text">
+                {editingCourse._id ? 'Edit' : 'Create'} <span className="text-brand-primary">Course</span>
               </h2>
               <button 
                 onClick={() => setIsModalOpen(false)}
-                className="p-2 hover:bg-white/5 rounded-full transition-colors"
+                className="p-2 hover:bg-brand-secondary/10 rounded-full transition-colors"
               >
-                <X className="w-6 h-6 text-gray-400" />
+                <X className="w-6 h-6 text-brand-text/40" />
               </button>
             </div>
 
@@ -228,17 +227,17 @@ const ManageCourses = () => {
               <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
                 {/* Visuals */}
                 <div className="space-y-6">
-                  <div className="aspect-video rounded-3xl bg-black/40 border-2 border-dashed border-white/10 flex flex-col items-center justify-center relative overflow-hidden group">
+                  <div className="aspect-video rounded-3xl bg-brand-secondary/5 border-2 border-dashed border-brand-primary/10 flex flex-col items-center justify-center relative overflow-hidden group">
                     {editingCourse.image ? (
                       <img src={editingCourse.image} alt="Preview" className="w-full h-full object-cover" />
                     ) : (
-                      <div className="flex flex-col items-center text-gray-500">
+                      <div className="flex flex-col items-center text-brand-text/20">
                         <ImageIcon className="w-12 h-12 mb-2" />
-                        <span className="text-xs font-bold uppercase tracking-widest">Course Thumbnail</span>
+                        <span className="text-[10px] font-black uppercase tracking-[0.2em]">Course Thumbnail</span>
                       </div>
                     )}
-                    <div className="absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
-                      <label className="cursor-pointer bg-white text-black px-6 py-2 rounded-full font-bold text-sm hover:scale-105 transition-transform">
+                    <div className="absolute inset-0 bg-brand-bg/60 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center backdrop-blur-sm">
+                      <label className="cursor-pointer bg-brand-primary text-white px-6 py-2 rounded-full font-black italic uppercase tracking-widest text-[10px] hover:scale-105 transition-transform shadow-lg shadow-brand-primary/20">
                         Upload Image
                         <input type="file" onChange={handleImageChange} className="hidden" accept="image/*" />
                       </label>
@@ -247,24 +246,24 @@ const ManageCourses = () => {
 
                   <div className="grid grid-cols-2 gap-4">
                     <div className="space-y-2">
-                       <label className="text-[10px] font-black uppercase tracking-widest text-gray-500 px-1">Tag</label>
+                       <label className="text-[10px] font-black uppercase tracking-[0.2em] text-brand-text/40 px-1">Tag</label>
                        <input 
                          required
                          value={editingCourse.tag}
                          onChange={(e) => setEditingCourse({...editingCourse, tag: e.target.value})}
-                         className="w-full bg-black/40 border border-white/10 rounded-xl px-4 py-3 focus:border-blue-500/50 outline-none transition-colors"
+                         className="w-full bg-brand-secondary/5 border border-brand-primary/10 rounded-xl px-4 py-3 focus:border-brand-primary/50 outline-none transition-colors text-brand-text font-bold"
                          placeholder="e.g. MATHS"
                        />
                     </div>
                     <div className="space-y-2">
-                       <label className="text-[10px] font-black uppercase tracking-widest text-gray-500 px-1">Threshold (%)</label>
+                       <label className="text-[10px] font-black uppercase tracking-[0.2em] text-brand-text/40 px-1">Threshold (%)</label>
                        <input 
                          type="number"
                          required
                          min="0" max="100"
                          value={editingCourse.passingThreshold}
                          onChange={(e) => setEditingCourse({...editingCourse, passingThreshold: parseInt(e.target.value)})}
-                         className="w-full bg-black/40 border border-white/10 rounded-xl px-4 py-3 focus:border-blue-500/50 outline-none transition-colors"
+                         className="w-full bg-brand-secondary/5 border border-brand-primary/10 rounded-xl px-4 py-3 focus:border-brand-primary/50 outline-none transition-colors text-brand-text font-bold"
                        />
                     </div>
                   </div>
@@ -273,28 +272,28 @@ const ManageCourses = () => {
                 {/* Details */}
                 <div className="space-y-6">
                   <div className="space-y-2">
-                    <label className="text-[10px] font-black uppercase tracking-widest text-gray-500 px-1">Title</label>
-                    <div className="flex items-center bg-black/40 border border-white/10 rounded-xl px-4 py-1 focus-within:border-blue-500/50 transition-colors">
-                      <Type className="w-4 h-4 text-gray-500 mr-2" />
+                    <label className="text-[10px] font-black uppercase tracking-[0.2em] text-brand-text/40 px-1">Title</label>
+                    <div className="flex items-center bg-brand-secondary/5 border border-brand-primary/10 rounded-xl px-4 py-1 focus-within:border-brand-primary/50 transition-colors">
+                      <Type className="w-4 h-4 text-brand-text/20 mr-2" />
                       <input 
                         required
                         value={editingCourse.title}
                         onChange={(e) => setEditingCourse({...editingCourse, title: e.target.value})}
-                        className="w-full bg-transparent py-3 outline-none"
+                        className="w-full bg-transparent py-3 outline-none text-brand-text font-bold"
                         placeholder="Course title"
                       />
                     </div>
                   </div>
 
                   <div className="space-y-2">
-                    <label className="text-[10px] font-black uppercase tracking-widest text-gray-500 px-1">Description</label>
-                    <div className="bg-black/40 border border-white/10 rounded-xl px-4 py-3 focus-within:border-blue-500/50 transition-colors">
+                    <label className="text-[10px] font-black uppercase tracking-[0.2em] text-brand-text/40 px-1">Description</label>
+                    <div className="bg-brand-secondary/5 border border-brand-primary/10 rounded-xl px-4 py-3 focus-within:border-brand-primary/50 transition-colors">
                       <textarea 
                         required
-                        rows={4}
+                        rows={5}
                         value={editingCourse.description}
                         onChange={(e) => setEditingCourse({...editingCourse, description: e.target.value})}
-                        className="w-full bg-transparent outline-none resize-none text-sm"
+                        className="w-full bg-transparent outline-none resize-none text-sm text-brand-text font-medium leading-relaxed"
                         placeholder="What will students learn?"
                       />
                     </div>
@@ -303,11 +302,11 @@ const ManageCourses = () => {
               </div>
 
               {/* Assessment Section */}
-              <div className="space-y-6 pt-8 border-t border-white/5">
-                <h3 className="text-sm font-black uppercase tracking-[0.2em] text-blue-500">Course Assessment</h3>
-                <div className="p-8 bg-black/20 rounded-3xl border border-white/5 space-y-4">
+              <div className="space-y-6 pt-8 border-t border-brand-primary/5">
+                <h3 className="text-[10px] font-black uppercase tracking-[0.3em] text-brand-primary italic">Course Assessment</h3>
+                <div className="p-8 bg-brand-secondary/5 rounded-[2rem] border border-brand-primary/10 space-y-5">
                   <div className="space-y-2">
-                     <label className="text-[10px] font-bold text-gray-400">Question</label>
+                     <label className="text-[10px] font-black uppercase tracking-[0.2em] text-brand-text/40 px-1">Question</label>
                      <input 
                        required
                        value={editingCourse.assessment.question}
@@ -315,13 +314,13 @@ const ManageCourses = () => {
                          ...editingCourse, 
                          assessment: { ...editingCourse.assessment, question: e.target.value } 
                        })}
-                       className="w-full bg-black/40 border border-white/10 rounded-xl px-4 py-3 outline-none"
+                       className="w-full bg-white border border-brand-primary/10 rounded-xl px-5 py-4 outline-none focus:border-brand-primary/50 transition-colors text-brand-text font-bold"
                      />
                   </div>
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
                     {editingCourse.assessment.options.map((opt: string, idx: number) => (
-                      <div key={idx} className="space-y-1">
-                        <label className="text-[10px] font-bold text-gray-500">Option {idx + 1}</label>
+                      <div key={idx} className="space-y-2">
+                        <label className="text-[10px] font-black uppercase tracking-[0.2em] text-brand-text/40 px-1">Option {idx + 1}</label>
                         <input 
                           required
                           value={opt}
@@ -333,24 +332,24 @@ const ManageCourses = () => {
                               assessment: { ...editingCourse.assessment, options: newOpts }
                             });
                           }}
-                          className="w-full bg-black/40 border border-white/10 rounded-xl px-4 py-2 outline-none text-sm"
+                          className="w-full bg-white border border-brand-primary/10 rounded-xl px-5 py-3 outline-none focus:border-brand-primary/50 transition-colors text-sm text-brand-text font-medium"
                         />
                       </div>
                     ))}
                   </div>
                   <div className="pt-4">
-                    <label className="text-[10px] font-black uppercase tracking-widest text-gray-500 block mb-2 px-1">Correct Answer</label>
+                    <label className="text-[10px] font-black uppercase tracking-[0.2em] text-brand-text/40 block mb-2 px-1">Correct Answer</label>
                     <select 
                       value={editingCourse.assessment.correctAnswer}
                       onChange={(e) => setEditingCourse({
                         ...editingCourse,
                         assessment: { ...editingCourse.assessment, correctAnswer: e.target.value }
                       })}
-                      className="w-full bg-blue-500/10 border border-blue-500/30 rounded-xl px-4 py-3 outline-none font-bold text-blue-400 appearance-none"
+                      className="w-full bg-brand-primary/10 border border-brand-primary/30 rounded-xl px-5 py-4 outline-none font-black italic uppercase tracking-widest text-brand-primary appearance-none cursor-pointer"
                     >
-                      <option value="">Select the correct option...</option>
+                      <option value="" className="text-brand-text/40">Select the correct option...</option>
                       {editingCourse.assessment.options.map((opt: string) => (
-                        <option key={opt} value={opt} className="bg-[#0f0f0f] text-white">{opt}</option>
+                        <option key={opt} value={opt} className="bg-white text-brand-text py-2">{opt}</option>
                       ))}
                     </select>
                   </div>
@@ -361,14 +360,14 @@ const ManageCourses = () => {
                 <button 
                   type="button"
                   onClick={() => setIsModalOpen(false)}
-                  className="px-8 py-4 font-bold text-gray-400 hover:text-white transition-colors"
+                  className="px-8 py-4 font-black italic uppercase tracking-widest text-[10px] text-brand-text/40 hover:text-brand-primary transition-colors"
                 >
                   Cancel
                 </button>
                 <button 
                   type="submit"
                   disabled={isSubmitting}
-                  className="px-12 py-4 bg-blue-600 hover:bg-blue-500 disabled:opacity-50 text-white rounded-2xl font-black transition-all shadow-xl shadow-blue-600/20 flex items-center gap-2"
+                  className="px-12 py-4 bg-brand-primary hover:opacity-90 disabled:opacity-50 text-white rounded-2xl font-black italic uppercase tracking-[0.2em] transition-all shadow-xl shadow-brand-primary/20 flex items-center gap-2"
                 >
                   {isSubmitting ? <Loader2 className="w-5 h-5 animate-spin" /> : <Save className="w-5 h-5" />}
                   Save Course
@@ -381,35 +380,35 @@ const ManageCourses = () => {
 
       {/* Assignment Modal */}
       {isAssignModalOpen && (
-        <div className="fixed inset-0 z-[100] flex items-center justify-center p-6 backdrop-blur-xl bg-black/60 animate-in fade-in duration-300">
-          <div className="bg-[#0f0f0f] border border-white/10 w-full max-w-2xl rounded-[2.5rem] shadow-2xl relative">
-            <div className="p-8 border-b border-white/5 flex justify-between items-center">
+        <div className="fixed inset-0 z-[100] flex items-center justify-center p-6 backdrop-blur-xl bg-brand-bg/60 animate-in fade-in duration-300">
+          <div className="bg-white border border-brand-primary/10 w-full max-w-2xl rounded-[2.5rem] shadow-2xl relative">
+            <div className="p-8 border-b border-brand-primary/5 flex justify-between items-center bg-brand-secondary/5 rounded-t-[2.5rem]">
               <div>
-                <h2 className="text-2xl font-black tracking-tight">Assign <span className="text-blue-500">Course</span></h2>
-                <p className="text-xs text-gray-500 mt-1">Course: {selectedCourseForAssign?.title}</p>
+                <h2 className="text-2xl font-black tracking-tight italic text-brand-text">Assign <span className="text-brand-primary">Course</span></h2>
+                <p className="text-[10px] text-brand-text/40 font-black uppercase tracking-widest mt-1">Course: {selectedCourseForAssign?.title}</p>
               </div>
-              <button onClick={() => setIsAssignModalOpen(false)} className="p-2 hover:bg-white/5 rounded-full transition-colors">
-                <X className="w-6 h-6 text-gray-400" />
+              <button onClick={() => setIsAssignModalOpen(false)} className="p-2 hover:bg-brand-secondary/10 rounded-full transition-colors">
+                <X className="w-6 h-6 text-brand-text/40" />
               </button>
             </div>
 
-            <div className="p-8 max-h-[50vh] overflow-y-auto space-y-2">
-              <p className="text-[10px] font-black uppercase tracking-widest text-gray-500 mb-4">Select Students</p>
+            <div className="p-8 max-h-[50vh] overflow-y-auto space-y-3">
+              <p className="text-[10px] font-black uppercase tracking-widest text-brand-text/40 mb-4 px-1">Select Students</p>
               {users.length === 0 ? (
-                <p className="text-gray-500 italic py-10 text-center">No students found matching your criteria.</p>
+                <p className="text-brand-text/30 italic py-10 text-center font-medium">No students found matching your criteria.</p>
               ) : (
                 users.map(user => (
-                  <label key={user._id} className="flex items-center justify-between p-4 bg-white/5 border border-white/5 rounded-2xl cursor-pointer hover:bg-white/10 transition-colors group">
-                    <div className="flex items-center gap-3">
-                      <div className="w-10 h-10 rounded-full bg-blue-500/20 text-blue-400 flex items-center justify-center font-bold">{user.name[0]}</div>
+                  <label key={user._id} className="flex items-center justify-between p-5 bg-brand-secondary/5 border border-brand-primary/5 rounded-2xl cursor-pointer hover:bg-brand-primary/5 transition-colors group">
+                    <div className="flex items-center gap-4">
+                      <div className="w-10 h-10 rounded-full bg-brand-primary/10 text-brand-primary flex items-center justify-center font-black">{user.name[0]}</div>
                       <div>
-                        <p className="font-bold">{user.name}</p>
-                        <p className="text-xs text-gray-500">{user.email}</p>
+                        <p className="font-black italic text-brand-text">{user.name}</p>
+                        <p className="text-xs text-brand-text/40 font-medium">{user.email}</p>
                       </div>
                     </div>
                     <input 
                       type="checkbox" 
-                      className="w-6 h-6 rounded-lg border-white/10 bg-black/40 text-blue-500 focus:ring-blue-500/50"
+                      className="w-6 h-6 rounded-lg border-brand-primary/20 bg-white text-brand-primary focus:ring-brand-primary/50 transition-all cursor-pointer"
                       checked={selectedUserIds.includes(user._id)}
                       onChange={(e) => {
                         if (e.target.checked) setSelectedUserIds([...selectedUserIds, user._id]);
@@ -421,12 +420,12 @@ const ManageCourses = () => {
               )}
             </div>
 
-            <div className="p-8 border-t border-white/5 flex justify-end gap-4">
-              <button onClick={() => setIsAssignModalOpen(false)} className="px-8 py-4 font-bold text-gray-400">Cancel</button>
+            <div className="p-8 border-t border-brand-primary/5 flex justify-end gap-4 bg-brand-secondary/5 rounded-b-[2.5rem]">
+              <button onClick={() => setIsAssignModalOpen(false)} className="px-8 py-4 font-black italic uppercase tracking-widest text-[10px] text-brand-text/40 hover:text-brand-primary">Cancel</button>
               <button 
                 onClick={handleAssignSubmit}
                 disabled={isSubmitting || selectedUserIds.length === 0}
-                className="px-12 py-4 bg-blue-600 hover:bg-blue-500 disabled:opacity-50 text-white rounded-2xl font-black transition-all shadow-xl shadow-blue-600/20 flex items-center gap-2"
+                className="px-12 py-4 bg-brand-primary hover:opacity-90 disabled:opacity-50 text-white rounded-2xl font-black italic uppercase tracking-widest transition-all shadow-xl shadow-brand-primary/20 flex items-center gap-2"
               >
                 {isSubmitting && <Loader2 className="w-5 h-5 animate-spin" />}
                 Confirm Assignment ({selectedUserIds.length})

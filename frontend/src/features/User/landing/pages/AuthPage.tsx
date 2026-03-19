@@ -41,27 +41,27 @@ const AuthPage: React.FC = () => {
   };
 
   return (
-    <div className="min-h-screen bg-[#050505] text-white font-sans flex items-center justify-center px-4">
+    <div className="min-h-screen bg-brand-bg text-brand-text font-sans flex items-center justify-center px-4">
       {/* Background glow */}
-      <div className="fixed top-1/4 left-1/2 -translate-x-1/2 w-[600px] h-[400px] bg-blue-600/10 blur-[120px] pointer-events-none" />
+      <div className="fixed top-1/4 left-1/2 -translate-x-1/2 w-[600px] h-[400px] bg-brand-primary/5 blur-[120px] pointer-events-none" />
 
       <div className="relative z-10 w-full max-w-md">
         {/* Logo */}
         <div className="text-center mb-10">
-          <h1 className="text-3xl font-black tracking-tighter">
-            Prompt<span className="text-blue-500">Pal</span>
+          <h1 className="text-3xl font-black tracking-tighter text-brand-text">
+            Prompt<span className="text-brand-primary">Pal</span>
           </h1>
-          <p className="text-gray-500 text-sm mt-2">AI-powered learning for Grade 7</p>
+          <p className="text-brand-text/50 text-sm mt-2">AI-powered learning for Grade 7</p>
         </div>
 
         {/* Tab switcher */}
-        <div className="flex bg-white/5 rounded-2xl p-1 mb-8 border border-white/10">
+        <div className="flex bg-brand-secondary/10 rounded-2xl p-1 mb-8 border border-brand-primary/10">
           {(['login', 'register'] as const).map(tab => (
             <button
               key={tab}
               onClick={() => { setMode(tab); setError(''); }}
               className={`flex-1 py-3 rounded-xl text-sm font-bold transition-all ${
-                mode === tab ? 'bg-blue-600 text-white shadow-lg' : 'text-gray-500 hover:text-white'
+                mode === tab ? 'bg-brand-primary text-white shadow-lg shadow-brand-primary/20' : 'text-brand-text/50 hover:text-brand-primary'
               }`}
             >
               {tab === 'login' ? 'Sign In' : 'Create Account'}
@@ -73,38 +73,38 @@ const AuthPage: React.FC = () => {
         <form onSubmit={handleSubmit} className="space-y-4">
           {mode === 'register' && (
             <div>
-              <label className="text-xs font-bold text-gray-500 uppercase tracking-widest block mb-2">Full Name</label>
+              <label className="text-xs font-bold text-brand-text/40 uppercase tracking-widest block mb-2">Full Name</label>
               <input
                 type="text"
                 value={name}
                 onChange={e => setName(e.target.value)}
                 placeholder="e.g. Thabo Mokoena"
-                className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-4 focus:outline-none focus:border-blue-500/60 transition-all"
+                className="w-full bg-white border border-brand-primary/10 rounded-xl px-4 py-4 focus:outline-none focus:border-brand-primary/60 transition-all text-brand-text"
                 required
               />
             </div>
           )}
 
           <div>
-            <label className="text-xs font-bold text-gray-500 uppercase tracking-widest block mb-2">Email</label>
+            <label className="text-xs font-bold text-brand-text/40 uppercase tracking-widest block mb-2">Email</label>
             <input
               type="email"
               value={email}
               onChange={e => setEmail(e.target.value)}
               placeholder="your@email.com"
-              className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-4 focus:outline-none focus:border-blue-500/60 transition-all"
+              className="w-full bg-white border border-brand-primary/10 rounded-xl px-4 py-4 focus:outline-none focus:border-brand-primary/60 transition-all text-brand-text"
               required
             />
           </div>
 
           <div>
-            <label className="text-xs font-bold text-gray-500 uppercase tracking-widest block mb-2">Password</label>
+            <label className="text-xs font-bold text-brand-text/40 uppercase tracking-widest block mb-2">Password</label>
             <input
               type="password"
               value={password}
               onChange={e => setPassword(e.target.value)}
               placeholder="Min. 6 characters"
-              className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-4 focus:outline-none focus:border-blue-500/60 transition-all"
+              className="w-full bg-white border border-brand-primary/10 rounded-xl px-4 py-4 focus:outline-none focus:border-brand-primary/60 transition-all text-brand-text"
               required
               minLength={6}
             />
@@ -119,7 +119,7 @@ const AuthPage: React.FC = () => {
           <button
             type="submit"
             disabled={loading}
-            className="w-full bg-blue-600 hover:bg-blue-500 transition-all py-4 rounded-xl font-bold text-sm shadow-lg shadow-blue-600/20 disabled:opacity-50 disabled:cursor-not-allowed mt-2"
+            className="w-full bg-brand-primary hover:opacity-90 transition-all py-4 rounded-xl font-bold text-sm shadow-lg shadow-brand-primary/20 disabled:opacity-50 disabled:cursor-not-allowed mt-2 text-white"
           >
             {loading ? 'Please wait...' : mode === 'login' ? 'Sign In' : 'Create Account'}
           </button>

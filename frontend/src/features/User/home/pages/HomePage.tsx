@@ -40,13 +40,13 @@ const HomePage: React.FC = () => {
   );
 
   return (
-    <div className="min-h-screen bg-[#050505] text-white font-sans selection:bg-blue-500/30 pb-20">
+    <div className="min-h-screen bg-brand-bg text-brand-text font-sans selection:bg-brand-primary/30 pb-20">
       <HomeNav />
 
       {/* Floating AI Lab CTA */}
       <Link
         to="/ai-chatbot"
-        className="fixed bottom-8 right-8 z-50 group flex items-center gap-3 bg-blue-600 hover:bg-blue-500 text-white px-6 py-4 rounded-2xl font-black italic shadow-[0_0_30px_rgba(37,99,235,0.4)] transition-all hover:scale-105 active:scale-95"
+        className="fixed bottom-8 right-8 z-50 group flex items-center gap-3 bg-brand-primary hover:opacity-90 text-white px-6 py-4 rounded-2xl font-black italic shadow-[0_0_30px_rgba(206,56,190,0.4)] transition-all hover:scale-105 active:scale-95"
       >
         <span className="text-xl">🤖</span>
         <span className="hidden md:block uppercase tracking-tighter">Open AI Lab</span>
@@ -58,12 +58,12 @@ const HomePage: React.FC = () => {
         <ContinueLearning courses={courses} />
 
         {/* AI Tutor promo */}
-        <section className="mb-12 p-8 rounded-3xl border border-blue-500/20 bg-blue-500/5 flex flex-col md:flex-row items-center justify-between gap-6">
+        <section className="mb-12 p-8 rounded-3xl border border-brand-primary/20 bg-brand-primary/5 flex flex-col md:flex-row items-center justify-between gap-6 shadow-sm">
           <div>
-            <h3 className="text-2xl font-black italic mb-2 tracking-tighter">Stuck on a problem?</h3>
-            <p className="text-gray-400 text-sm">Our PromptPal AI is ready to help you with your Grade 7 homework right now.</p>
+            <h3 className="text-2xl font-black italic mb-2 tracking-tighter text-brand-text">Stuck on a problem?</h3>
+            <p className="text-brand-text/60 text-sm">Our PromptPal AI is ready to help you with your Grade 7 homework right now.</p>
           </div>
-          <Link to="/ai-chatbot" className="bg-white text-black px-8 py-3 rounded-xl font-bold text-sm hover:bg-blue-50 transition-all">
+          <Link to="/ai-chatbot" className="bg-brand-primary text-white px-8 py-3 rounded-xl font-bold text-sm hover:opacity-90 transition-all shadow-md">
             Chat with AI Tutor
           </Link>
         </section>
@@ -76,11 +76,11 @@ const HomePage: React.FC = () => {
               <input
                 type="text"
                 placeholder="Search subjects or topics..."
-                className="w-full bg-white/5 border border-white/10 rounded-2xl px-12 py-4 focus:outline-none focus:border-blue-500/50 transition-all"
+                className="w-full bg-white border border-brand-primary/10 rounded-2xl px-12 py-4 focus:outline-none focus:border-brand-primary/50 transition-all text-brand-text placeholder:text-brand-text/30"
                 value={search}
                 onChange={e => setSearch(e.target.value)}
               />
-              <span className="absolute left-4 top-1/2 -translate-y-1/2 opacity-40 text-xl">🔍</span>
+              <span className="absolute left-4 top-1/2 -translate-y-1/2 opacity-40 text-xl grayscale contrast-200">🔍</span>
             </div>
             <div className="flex items-center space-x-2 overflow-x-auto pb-2">
               {TAGS.map(tag => (
@@ -89,8 +89,8 @@ const HomePage: React.FC = () => {
                   onClick={() => setActiveTag(tag)}
                   className={`px-5 py-2 rounded-full text-xs font-bold transition-all whitespace-nowrap ${
                     activeTag === tag
-                      ? 'bg-blue-600 text-white shadow-lg shadow-blue-600/20'
-                      : 'bg-white/5 text-gray-500 hover:bg-white/10'
+                      ? 'bg-brand-primary text-white shadow-lg shadow-brand-primary/20'
+                      : 'bg-brand-secondary/20 text-brand-text/60 hover:bg-brand-secondary/30'
                   }`}
                 >
                   {tag}
