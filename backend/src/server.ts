@@ -15,7 +15,7 @@ const PORT = process.env.PORT || 5000;
 
 // Middleware
 app.use(cors({
-  origin: ['http://localhost:5173', 'https://prompt-pal-six.vercel.app/'],
+  origin: ['http://localhost:5173', 'https://prompt-pal-six.vercel.app'],
   credentials: true
 }));
 app.use(express.json());
@@ -28,9 +28,9 @@ app.use('/api/assessments', assessmentRoutes);
 app.use('/api/leaderboard', leaderboardRoutes);
 
 // Health check endpoint
-app.get('/api/status', (req, resentment) => {
+app.get('/api/status', (req, res) => {
   const dbStatus = mongoose.connection.readyState === 1 ? 'Connected' : 'Disconnected';
-  resentment.json({
+  res.json({
     status: 'Server is running',
     database: dbStatus,
     timestamp: new Date().toISOString()
