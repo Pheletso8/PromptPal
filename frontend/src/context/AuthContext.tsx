@@ -54,24 +54,34 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
   // ─── Login ────────────────────────────────────────────────────────────────
   const login = async (email: string, password: string) => {
-    const data = await api.login(email, password);
-    if (!data.token) {
-      throw new Error('Login failed: No token received from server');
+    try {
+      const data = await api.login(email, password);
+      if (!data.token) {
+        throw new Error('Login failed: No token received from server');
+      }
+      localStorage.setItem('token', data.token);
+      setToken(data.token);
+      setUser(data);
+    } catch (err: any) {
+      console.error('Login error:', err);
+      throw new Error(err.message || 'Login failed. Please check your credentials and try again.');
     }
-    localStorage.setItem('token', data.token);
-    setToken(data.token);
-    setUser(data);
   };
 
   // ─── Register ─────────────────────────────────────────────────────────────
   const register = async (name: string, email: string, password: string) => {
-    const data = await api.register(name, email, password);
-    if (!data.token) {
-      throw new Error('Registration failed: No token received from server');
+    try {
+      const data = await api.register(name, email, password);
+      if (!data.token) {
+        throw new Error('Registration failed: No token received from server');
+      }
+      localStorage.setItem('token', data.token);
+      setToken(data.token);
+      setUser(data);
+    } catch (err: any) {
+      console.error('Registration error:', err);
+      throw new Error(err.message || 'Registration failed. Please try again.');
     }
-    localStorage.setItem('token', data.token);
-    setToken(data.token);
-    setUser(data);
   };
 
   // ─── Logout ───────────────────────────────────────────────────────────────
