@@ -9,6 +9,7 @@ export interface IUser extends Document {
   stars: number;
   assessmentsPassed: number;
   profileImage?: string;
+  disabled: boolean;
 }
 
 const UserSchema: Schema = new Schema({
@@ -21,6 +22,7 @@ const UserSchema: Schema = new Schema({
   stars: { type: Number, default: 0 },
   assessmentsPassed: { type: Number, default: 0 },
   profileImage: { type: String, default: '' },
+  disabled: { type: Boolean, default: false },
 }, {
   timestamps: true,
 });

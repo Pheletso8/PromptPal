@@ -1,0 +1,20 @@
+export const theme = {
+  primary: '#7c3aed',
+  primaryLight: '#ddd6fe',
+  secondary: '#ede9fe',
+  bg: '#f9f7ff',
+  card: '#ffffff',
+  text: '#1e0047',
+  textMuted: '#9980c4',
+  accent: '#f59e0b',
+  success: '#10b981',
+  danger: '#ef4444',
+  border: 'rgba(124,58,237,0.12)',
+  shadow: {
+    shadowColor: '#7c3aed',
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.08,
+    shadowRadius: 12,
+    elevation: 4,
+  },
+};

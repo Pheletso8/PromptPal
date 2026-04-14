@@ -12,7 +12,7 @@ interface AuthRequest extends Request {
 // @access  Private
 export const submitAssessment = async (req: AuthRequest, res: Response): Promise<void> => {
   try {
-    const { courseId, answer } = req.body;
+    const { courseId, answers, answer } = req.body; // Support 'answers' array
     const userId = req.user._id;
 
     // Check if user is assigned to this course
@@ -23,36 +23,69 @@ export const submitAssessment = async (req: AuthRequest, res: Response): Promise
     }
 
     const course = await Course.findById(courseId);
-    if (!course || !course.assessment) {
+    
+    // Normalize older 'assessment' model vs newer 'assessments'
+    const assessments = course?.assessments?.length > 0 ? course.assessments : (course?.assessment ? [course.assessment] : []);
+    
+    if (!course || assessments.length === 0) {
       res.status(404).json({ message: 'Course or Assessment not found' });
       return;
     }
 
-    // Check if answer is correct. (Simple string match, adjust logic as needed)
-    const passed = course.assessment.correctAnswer === answer;
-    const score = passed ? 100 : 0; // Simple scoring
-
-    // Check if user already submitted this assessment
+    // Check if user already submitted this assessment and reached limit
     let assessmentMark = await AssessmentMark.findOne({ user: userId, course: courseId });
+    if (assessmentMark && assessmentMark.attempts >= 3 && !assessmentMark.passed) {
+      res.status(403).json({ message: 'Maximum attempts reached. Assessment is locked.' });
+      return;
+    }
+
+    // Format submitted answers to an array
+    const submittedAnswers = answers || (answer ? [answer] : []);
+
+    let correctCount = 0;
+    const totalQuestions = assessments.length;
+    const corrections: { questionIndex: number, correctAnswer: string, yourAnswer: string }[] = [];
+
+    assessments.forEach((assessment, i) => {
+      const isCorrect = submittedAnswers[i] === assessment.correctAnswer;
+      if (isCorrect) {
+        correctCount++;
+      } else {
+        corrections.push({
+          questionIndex: i,
+          correctAnswer: assessment.correctAnswer,
+          yourAnswer: submittedAnswers[i] || ''
+        });
+      }
+    });
+
+    const passingThreshold = course.passingThreshold || 70;
+    const score = (correctCount / totalQuestions) * 100;
+    const passed = score >= passingThreshold;
 
     if (assessmentMark) {
-      // If retaking, we only update if they passed this time and didn't before.
-      if (!assessmentMark.passed && passed) {
-        assessmentMark.score = score;
-        assessmentMark.passed = true;
-        await assessmentMark.save();
-        
-        // Update user stats
-        user.assessmentsPassed += 1;
-        user.stars += 10; // Give 10 stars per passed assessment
-        await user.save();
+      if (!assessmentMark.passed) {
+        assessmentMark.attempts += 1;
+        if (passed) {
+          assessmentMark.score = score;
+          assessmentMark.passed = true;
+          await assessmentMark.save();
+          
+          user.assessmentsPassed += 1;
+          user.stars += 10;
+          await user.save();
+        } else {
+          if (score > assessmentMark.score) assessmentMark.score = score;
+          await assessmentMark.save();
+        }
       }
     } else {
       assessmentMark = await AssessmentMark.create({
         user: userId,
         course: courseId,
         score,
-        passed
+        passed,
+        attempts: 1
       });
 
       if (passed) {
@@ -62,7 +95,15 @@ export const submitAssessment = async (req: AuthRequest, res: Response): Promise
       }
     }
 
-    res.status(200).json({ passed, score, message: passed ? 'Assessment passed!' : 'Assessment failed, try again.', stars: user.stars });
+    res.status(200).json({ 
+      passed, 
+      score, 
+      message: passed ? 'Assessment passed!' : 'Assessment failed, try again.', 
+      stars: user.stars,
+      corrections: passed ? [] : corrections,
+      attempts: assessmentMark.attempts,
+      locked: !passed && assessmentMark.attempts >= 3
+    });
 
   } catch (error) {
     res.status(500).json({ message: 'Server error', error });

@@ -1,7 +1,7 @@
 import { useState, useRef } from 'react';
 import { useAuth } from '../../../../context/AuthContext';
 import HomeNav from '../components/HomeNav';
-import { Camera, Mail, User as UserIcon, Save, ArrowLeft, Loader2 } from 'lucide-react';
+import { Camera, Mail, User as UserIcon, Save, ArrowLeft } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 
 const ProfilePage = () => {
@@ -129,7 +129,7 @@ const ProfilePage = () => {
             className="w-full bg-brand-primary hover:opacity-90 disabled:opacity-50 disabled:cursor-not-allowed text-white font-black uppercase italic tracking-widest py-5 rounded-2xl transition-all shadow-xl shadow-brand-primary/20 flex items-center justify-center space-x-2 mt-4"
           >
             {isSubmitting ? (
-              <Loader2 className="w-5 h-5 animate-spin" />
+              <span>Saving...</span>
             ) : (
               <>
                 <Save className="w-5 h-5" />

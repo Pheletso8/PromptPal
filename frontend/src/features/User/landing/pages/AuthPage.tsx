@@ -26,13 +26,18 @@ const AuthPage: React.FC = () => {
     setError('');
     setLoading(true);
     try {
+      let loggedUser;
       if (mode === 'login') {
-        await login(email, password);
+        loggedUser = await login(email, password);
       } else {
         if (!name.trim()) { setError('Name is required'); setLoading(false); return; }
-        await register(name, email, password);
+        loggedUser = await register(name, email, password);
       }
-      navigate('/home');
+      if (loggedUser?.role === 'admin') {
+        navigate('/admin');
+      } else {
+        navigate('/home');
+      }
     } catch (err: any) {
       setError(err.message || 'Something went wrong');
     } finally {
@@ -41,29 +46,33 @@ const AuthPage: React.FC = () => {
   };
 
   return (
-    <div className="min-h-screen bg-brand-bg text-brand-text font-sans flex items-center justify-center px-4">
+    <div className="min-h-screen bg-gradient-to-br from-brand-bg via-white to-brand-primary/5 text-brand-text font-sans flex items-center justify-center px-4 relative overflow-hidden">
       {/* Background glow */}
-      <div className="fixed top-1/4 left-1/2 -translate-x-1/2 w-[600px] h-[400px] bg-brand-primary/5 blur-[120px] pointer-events-none" />
+      <div className="fixed top-1/4 left-1/2 -translate-x-1/2 w-[600px] h-[400px] bg-brand-primary/10 blur-[150px] pointer-events-none" />
+      <div className="fixed bottom-0 right-0 w-[500px] h-[500px] bg-brand-secondary/10 blur-[150px] pointer-events-none" />
 
-      <div className="relative z-10 w-full max-w-md">
+      <div className="relative z-10 w-full max-w-md bg-white/80 backdrop-blur-2xl rounded-[2.5rem] p-8 md:p-10 shadow-[0_8px_30px_rgb(0,0,0,0.06)] border border-white">
         {/* Logo */}
         <div className="text-center mb-10">
-          <h1 className="text-3xl font-black tracking-tighter text-brand-text">
+          <h1 className="text-4xl font-bold tracking-tight text-brand-text mb-1">
             Prompt<span className="text-brand-primary">Pal</span>
           </h1>
-          <p className="text-brand-text/50 text-sm mt-2">AI-powered learning for Grade 7</p>
+          <p className="text-brand-text/50 font-medium text-sm">AI-powered learning for Grade 7</p>
         </div>
 
         {/* Tab switcher */}
-        <div className="flex bg-brand-secondary/10 rounded-2xl p-1 mb-8 border border-brand-primary/10">
+        <div className="flex bg-gray-50/80 backdrop-blur-md rounded-full p-1.5 mb-10 border border-gray-100 shadow-sm relative">
           {(['login', 'register'] as const).map(tab => (
             <button
               key={tab}
               onClick={() => { setMode(tab); setError(''); }}
-              className={`flex-1 py-3 rounded-xl text-sm font-bold transition-all ${
-                mode === tab ? 'bg-brand-primary text-white shadow-lg shadow-brand-primary/20' : 'text-brand-text/50 hover:text-brand-primary'
+              className={`flex-1 py-3.5 rounded-full text-sm font-bold transition-all relative z-10 ${
+                mode === tab ? 'text-white text-shadow-sm' : 'text-brand-text/50 hover:text-brand-text'
               }`}
             >
+              {mode === tab && (
+                <div className="absolute inset-0 bg-brand-primary rounded-full justify-center flex items-center -z-10 shadow-[0_4px_14px_0_rgba(107,33,168,0.25)] transition-all"></div>
+              )}
               {tab === 'login' ? 'Sign In' : 'Create Account'}
             </button>
           ))}
@@ -73,38 +82,38 @@ const AuthPage: React.FC = () => {
         <form onSubmit={handleSubmit} className="space-y-4">
           {mode === 'register' && (
             <div>
-              <label className="text-xs font-bold text-brand-text/40 uppercase tracking-widest block mb-2">Full Name</label>
+              <label className="text-xs font-bold text-brand-text/50 uppercase tracking-wider block mb-2 px-2">Full Name</label>
               <input
                 type="text"
                 value={name}
                 onChange={e => setName(e.target.value)}
                 placeholder="e.g. Thabo Mokoena"
-                className="w-full bg-white border border-brand-primary/10 rounded-xl px-4 py-4 focus:outline-none focus:border-brand-primary/60 transition-all text-brand-text"
+                className="w-full bg-white/60 backdrop-blur-sm border border-gray-100 rounded-full px-6 py-4 focus:outline-none focus:bg-white focus:border-brand-primary/40 focus:ring-4 focus:ring-brand-primary/10 transition-all text-brand-text shadow-sm placeholder:text-brand-text/30"
                 required
               />
             </div>
           )}
 
           <div>
-            <label className="text-xs font-bold text-brand-text/40 uppercase tracking-widest block mb-2">Email</label>
+            <label className="text-xs font-bold text-brand-text/50 uppercase tracking-wider block mb-2 px-2">Email</label>
             <input
               type="email"
               value={email}
               onChange={e => setEmail(e.target.value)}
               placeholder="your@email.com"
-              className="w-full bg-white border border-brand-primary/10 rounded-xl px-4 py-4 focus:outline-none focus:border-brand-primary/60 transition-all text-brand-text"
+              className="w-full bg-white/60 backdrop-blur-sm border border-gray-100 rounded-full px-6 py-4 focus:outline-none focus:bg-white focus:border-brand-primary/40 focus:ring-4 focus:ring-brand-primary/10 transition-all text-brand-text shadow-sm placeholder:text-brand-text/30"
               required
             />
           </div>
 
           <div>
-            <label className="text-xs font-bold text-brand-text/40 uppercase tracking-widest block mb-2">Password</label>
+            <label className="text-xs font-bold text-brand-text/50 uppercase tracking-wider block mb-2 px-2">Password</label>
             <input
               type="password"
               value={password}
               onChange={e => setPassword(e.target.value)}
               placeholder="Min. 6 characters"
-              className="w-full bg-white border border-brand-primary/10 rounded-xl px-4 py-4 focus:outline-none focus:border-brand-primary/60 transition-all text-brand-text"
+              className="w-full bg-white/60 backdrop-blur-sm border border-gray-100 rounded-full px-6 py-4 focus:outline-none focus:bg-white focus:border-brand-primary/40 focus:ring-4 focus:ring-brand-primary/10 transition-all text-brand-text shadow-sm placeholder:text-brand-text/30"
               required
               minLength={6}
             />
@@ -119,7 +128,7 @@ const AuthPage: React.FC = () => {
           <button
             type="submit"
             disabled={loading}
-            className="w-full bg-brand-primary hover:opacity-90 transition-all py-4 rounded-xl font-bold text-sm shadow-lg shadow-brand-primary/20 disabled:opacity-50 disabled:cursor-not-allowed mt-2 text-white"
+            className="w-full bg-brand-primary hover:bg-brand-secondary transition-all py-4 rounded-full font-bold text-sm shadow-[0_4px_14px_0_rgba(107,33,168,0.25)] hover:shadow-[0_6px_20px_rgba(107,33,168,0.23)] hover:-translate-y-0.5 disabled:opacity-50 disabled:cursor-not-allowed mt-6 text-white tracking-wide"
           >
             {loading ? 'Please wait...' : mode === 'login' ? 'Sign In' : 'Create Account'}
           </button>

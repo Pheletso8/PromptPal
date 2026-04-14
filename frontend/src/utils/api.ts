@@ -42,8 +42,11 @@ export interface Course {
   assessment?: {
     question: string;
     options: string[];
-    // correctAnswer is stripped by backend before sending
   };
+  assessments?: {
+    question: string;
+    options: string[];
+  }[];
 }
 
 export interface LeaderboardEntry {
@@ -58,6 +61,13 @@ export interface AssessmentResult {
   score: number;
   message: string;
   stars: number;
+  attempts?: number;
+  locked?: boolean;
+  corrections?: {
+    questionIndex: number;
+    correctAnswer: string;
+    yourAnswer: string;
+  }[];
 }
 
 export type ProgressMap = Record<string, { score: number; passed: boolean }>;
@@ -137,11 +147,11 @@ export const api = {
   // ── Assessments ─────────────────────────────────────────────────────────────
 
   /** Submit an assessment answer — backend checks against the correct answer */
-  submitAssessment: (courseId: string, answer: string) =>
+  submitAssessment: (courseId: string, answers: string[]) =>
     fetch(`${BASE}/assessments/submit`, {
       method: 'POST',
       headers: authHeaders(),
-      body: JSON.stringify({ courseId, answer }),
+      body: JSON.stringify({ courseId, answers }),
     }).then(res => handleRes<AssessmentResult>(res)),
 
   // ── Leaderboard ─────────────────────────────────────────────────────────────
@@ -171,6 +181,29 @@ export const api = {
     fetch(`${BASE}/admin/stats`, { headers: authHeaders() })
       .then(res => handleRes<any>(res)),
 
+  /** Get all users (Admin only) */
+  getAllUsers: () =>
+    fetch(`${BASE}/admin/users`, { headers: authHeaders() })
+      .then(res => handleRes<any[]>(res)),
+
+  /** Toggle user status (Admin only) */
+  adminToggleUserStatus: (id: string) =>
+    fetch(`${BASE}/admin/users/${id}/toggle`, { method: 'PUT', headers: authHeaders() })
+      .then(res => handleRes<any>(res)),
+
+  /** Delete a user (Admin only) */
+  adminDeleteUser: (id: string) =>
+    fetch(`${BASE}/admin/users/${id}`, { method: 'DELETE', headers: authHeaders() })
+      .then(res => handleRes<any>(res)),
+
+  /** Update a user (Admin only) */
+  adminUpdateUser: (id: string, data: any) =>
+    fetch(`${BASE}/admin/users/${id}`, {
+      method: 'PUT',
+      headers: authHeaders(),
+      body: JSON.stringify(data),
+    }).then(res => handleRes<any>(res)),
+
   /** Create a new course */
   adminCreateCourse: (courseData: any) =>
     fetch(`${BASE}/admin/courses`, {
@@ -193,4 +226,19 @@ export const api = {
       method: 'DELETE',
       headers: authHeaders(),
     }).then(res => handleRes<{ message: string }>(res)),
+
+  // ── Platform Config ──────────────────────────────────────────────────────────
+
+  /** Get platform config */
+  getConfig: () =>
+    fetch(`${BASE}/config`, { headers: authHeaders() })
+      .then(res => handleRes<any>(res)),
+
+  /** Update platform config */
+  updateConfig: (data: any) =>
+    fetch(`${BASE}/config`, {
+      method: 'PUT',
+      headers: authHeaders(),
+      body: JSON.stringify(data),
+    }).then(res => handleRes<any>(res)),
 };

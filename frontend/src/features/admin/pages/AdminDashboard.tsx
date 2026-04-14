@@ -1,21 +1,19 @@
 import { useState, useEffect } from 'react';
 import { api } from '../../../utils/api';
-import HomeNav from '../../User/home/components/HomeNav';
 import { 
   LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, 
   BarChart, Bar, Cell, ScatterChart, Scatter, ZAxis
 } from 'recharts';
 import { 
   Users, BookOpen, TrendingUp, Award, Activity, 
-  ChevronRight, LayoutGrid, ListChecks, PlusCircle
+  ChevronRight, LayoutGrid
 } from 'lucide-react';
-import { useNavigate } from 'react-router-dom';
 import AdminDashboardSkeleton from '../components/AdminDashboardSkeleton';
+import AdminLayout from '../components/AdminLayout';
 
 const AdminDashboard = () => {
   const [stats, setStats] = useState<any>(null);
   const [isLoading, setIsLoading] = useState(true);
-  const navigate = useNavigate();
 
   useEffect(() => {
     const fetchStats = async () => {
@@ -33,42 +31,16 @@ const AdminDashboard = () => {
 
   if (isLoading) {
     return (
-      <>
-        <HomeNav />
+      <AdminLayout title="Dashboard" subtitle="Overview & Stats">
         <AdminDashboardSkeleton />
-      </>
+      </AdminLayout>
     );
   }
 
   const COLORS = ['#ce38be', '#d7da6a', '#e5bf98', '#120410', '#ce38be80'];
 
   return (
-    <div className="min-h-screen bg-brand-bg text-brand-text font-sans">
-      <HomeNav />
-      
-      <main className="max-w-7xl mx-auto pt-32 px-6 pb-20">
-        <div className="flex flex-col md:flex-row justify-between items-start md:items-end mb-12 gap-6">
-          <div>
-            <h1 className="text-4xl font-black tracking-tight mb-2 text-brand-text italic">Admin <span className="text-brand-primary">Dashboard</span></h1>
-            <p className="text-brand-text/50 font-medium">Real-time platform pulse and student success metrics</p>
-          </div>
-          <div className="flex gap-4">
-            <button 
-              onClick={() => navigate('/admin/courses')}
-              className="px-6 py-3 bg-white hover:bg-brand-secondary/5 border border-brand-primary/10 rounded-xl transition-all flex items-center gap-2 font-bold text-brand-text shadow-sm"
-            >
-              <ListChecks className="w-5 h-5" />
-              Manage Courses
-            </button>
-            <button 
-              className="px-6 py-3 bg-brand-primary hover:opacity-90 text-white rounded-xl transition-all flex items-center gap-2 font-bold shadow-lg shadow-brand-primary/20"
-            >
-              <PlusCircle className="w-5 h-5" />
-              New User
-            </button>
-          </div>
-        </div>
-
+    <AdminLayout title="Dashboard" subtitle="Real-time platform pulse & metrics">
         {/* Quick Stats Grid */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-12">
           {[
@@ -213,8 +185,7 @@ const AdminDashboard = () => {
             </table>
           </div>
         </div>
-      </main>
-    </div>
+    </AdminLayout>
   );
 };
 

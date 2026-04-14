@@ -11,6 +11,8 @@ import ChatPage from './features/User/AI_chatbot/UiPage/ChatPage';
 import ProfilePage from './features/User/home/pages/ProfilePage';
 import AdminDashboard from './features/admin/pages/AdminDashboard';
 import ManageCourses from './features/admin/pages/ManageCourses';
+import UserDirectory from './features/Admin/pages/UserDirectory';
+import PlatformConfig from './features/Admin/pages/PlatformConfig';
 
 /**
  * ProtectedRoute — Redirects to /auth if the user is not logged in.
@@ -51,6 +53,8 @@ function App() {
         {/* Admin routes */}
         <Route path="/admin" element={<AdminRoute><AdminDashboard /></AdminRoute>} />
         <Route path="/admin/courses" element={<AdminRoute><ManageCourses /></AdminRoute>} />
+        <Route path="/admin/users" element={<AdminRoute><UserDirectory /></AdminRoute>} />
+        <Route path="/admin/config" element={<AdminRoute><PlatformConfig /></AdminRoute>} />
 
         {/* Catch-all */}
         <Route path="*" element={<LandingPage />} />

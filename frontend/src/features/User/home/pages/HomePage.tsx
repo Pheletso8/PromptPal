@@ -46,10 +46,10 @@ const HomePage: React.FC = () => {
       {/* Floating AI Lab CTA */}
       <Link
         to="/ai-chatbot"
-        className="fixed bottom-8 right-8 z-50 group flex items-center gap-3 bg-brand-primary hover:opacity-90 text-white px-6 py-4 rounded-2xl font-black italic shadow-[0_0_30px_rgba(206,56,190,0.4)] transition-all hover:scale-105 active:scale-95"
+        className="fixed bottom-8 right-8 z-50 group flex items-center gap-3 bg-brand-primary hover:bg-brand-secondary text-white px-8 py-4 rounded-full font-bold shadow-[0_8px_30px_rgb(107,33,168,0.3)] transition-all hover:-translate-y-1 active:scale-95 border border-white/20"
       >
-        <span className="text-xl">🤖</span>
-        <span className="hidden md:block uppercase tracking-tighter">Open AI Lab</span>
+        <span className="text-2xl drop-shadow-md group-hover:scale-110 transition-transform">🤖</span>
+        <span className="hidden md:block uppercase tracking-wider text-sm">Open AI Lab</span>
       </Link>
 
       <main className="max-w-7xl mx-auto px-8 pt-28">
@@ -58,12 +58,15 @@ const HomePage: React.FC = () => {
         <ContinueLearning courses={courses} />
 
         {/* AI Tutor promo */}
-        <section className="mb-12 p-8 rounded-3xl border border-brand-primary/20 bg-brand-primary/5 flex flex-col md:flex-row items-center justify-between gap-6 shadow-sm">
-          <div>
-            <h3 className="text-2xl font-black italic mb-2 tracking-tighter text-brand-text">Stuck on a problem?</h3>
-            <p className="text-brand-text/60 text-sm">Our PromptPal AI is ready to help you with your Grade 7 homework right now.</p>
+        <section className="mb-14 p-8 md:p-10 rounded-[2rem] bg-gradient-to-br from-brand-primary/10 via-brand-secondary/5 to-transparent border border-white flex flex-col md:flex-row items-center justify-between gap-6 shadow-[0_8px_30px_rgb(0,0,0,0.04)]">
+          <div className="flex items-center gap-6">
+            <div className="w-16 h-16 hidden sm:flex items-center justify-center bg-white rounded-full shadow-sm text-3xl">✨</div>
+            <div>
+              <h3 className="text-[1.75rem] font-bold mb-2 text-brand-text">Stuck on a problem?</h3>
+              <p className="text-brand-text/60 font-medium text-base">Our AI Tutor is ready to explain concepts clearly, step by step.</p>
+            </div>
           </div>
-          <Link to="/ai-chatbot" className="bg-brand-primary text-white px-8 py-3 rounded-xl font-bold text-sm hover:opacity-90 transition-all shadow-md">
+          <Link to="/ai-chatbot" className="bg-white text-brand-primary border border-gray-100 px-8 py-3.5 rounded-full font-bold shadow-sm hover:shadow-md hover:-translate-y-0.5 transition-all whitespace-nowrap">
             Chat with AI Tutor
           </Link>
         </section>
@@ -76,21 +79,21 @@ const HomePage: React.FC = () => {
               <input
                 type="text"
                 placeholder="Search subjects or topics..."
-                className="w-full bg-white border border-brand-primary/10 rounded-2xl px-12 py-4 focus:outline-none focus:border-brand-primary/50 transition-all text-brand-text placeholder:text-brand-text/30"
+                className="w-full bg-white border border-gray-100 rounded-full px-14 py-4 focus:outline-none focus:border-brand-primary/40 focus:ring-4 focus:ring-brand-primary/10 transition-all text-brand-text placeholder:text-brand-text/40 shadow-sm"
                 value={search}
                 onChange={e => setSearch(e.target.value)}
               />
               <span className="absolute left-4 top-1/2 -translate-y-1/2 opacity-40 text-xl grayscale contrast-200">🔍</span>
             </div>
-            <div className="flex items-center space-x-2 overflow-x-auto pb-2">
+            <div className="flex items-center space-x-3 overflow-x-auto pb-2 scrollbar-hide px-1">
               {TAGS.map(tag => (
                 <button
                   key={tag}
                   onClick={() => setActiveTag(tag)}
-                  className={`px-5 py-2 rounded-full text-xs font-bold transition-all whitespace-nowrap ${
+                  className={`px-6 py-2.5 rounded-full text-sm font-semibold transition-all whitespace-nowrap border ${
                     activeTag === tag
-                      ? 'bg-brand-primary text-white shadow-lg shadow-brand-primary/20'
-                      : 'bg-brand-secondary/20 text-brand-text/60 hover:bg-brand-secondary/30'
+                      ? 'bg-brand-primary text-white border-transparent shadow-[0_4px_14px_0_rgba(107,33,168,0.25)] hover:-translate-y-0.5'
+                      : 'bg-white border-gray-100 text-brand-text/70 hover:shadow-md hover:-translate-y-0.5'
                   }`}
                 >
                   {tag}

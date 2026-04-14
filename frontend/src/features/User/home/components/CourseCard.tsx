@@ -16,59 +16,61 @@ const CourseCard = ({ course }: CourseProps) => {
   const isCompleted = progress === 100;
 
   return (
-    <div className="group relative rounded-3xl border border-brand-primary/10 bg-white overflow-hidden hover:border-brand-primary/30 transition-all duration-500 hover:shadow-2xl hover:shadow-brand-primary/10 flex flex-col h-full shadow-sm">
-      <div className="relative h-44 overflow-hidden bg-gradient-to-br from-brand-primary/10 to-brand-secondary/10">
+    <div className="group relative rounded-[2rem] bg-white transition-all duration-500 hover:-translate-y-2 hover:shadow-2xl hover:shadow-brand-primary/20 flex flex-col h-full shadow-[0_8px_30px_rgb(0,0,0,0.04)] border border-gray-50">
+      <div className="relative h-48 m-3 overflow-hidden rounded-[1.5rem] bg-gradient-to-br from-brand-primary/10 to-brand-secondary/10">
         {course.image ? (
           <img
             src={course.image}
             alt={course.title}
-            className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700"
+            className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700 ease-out"
           />
         ) : (
-          <div className="w-full h-full flex items-center justify-center text-4xl opacity-40 group-hover:scale-125 transition-transform duration-500">
+          <div className="w-full h-full flex items-center justify-center text-5xl opacity-40 group-hover:scale-125 transition-transform duration-700 ease-out">
             {course.tag === 'Mathematics' ? '🔢' : course.tag === 'Science' ? '🧪' : '📚'}
           </div>
         )}
-        <div className="absolute inset-0 bg-gradient-to-t from-white/80 to-transparent opacity-80" />
+        <div className="absolute inset-0 bg-gradient-to-t from-brand-text/5 to-transparent opacity-50" />
         
-        <div className="absolute top-4 left-4 flex gap-2">
-          <span className="bg-white/80 backdrop-blur-md text-[10px] font-black tracking-widest uppercase px-3 py-1 rounded-full border border-brand-primary/20 text-brand-primary">
+        <div className="absolute top-3 left-3 flex gap-2">
+          <span className="bg-white/95 backdrop-blur-md text-xs font-semibold tracking-wide px-3.5 py-1.5 rounded-full text-brand-primary shadow-sm">
             {course.tag}
           </span>
           {isCompleted && (
-            <span className="bg-green-500/20 backdrop-blur-md text-[10px] font-black tracking-widest uppercase px-3 py-1 rounded-full border border-green-500/30 text-green-400">
+            <span className="bg-green-500/90 backdrop-blur-md text-xs font-semibold tracking-wide px-3.5 py-1.5 rounded-full text-white shadow-sm">
               Mastered
             </span>
           )}
         </div>
       </div>
 
-      <div className="p-6 flex flex-col flex-grow">
-        <h4 className="font-black text-lg leading-tight mb-4 text-brand-text group-hover:text-brand-primary transition-colors">
+      <div className="px-6 pb-6 pt-2 flex flex-col flex-grow">
+        <h4 className="font-bold text-[1.35rem] leading-snug mb-4 text-brand-text group-hover:text-brand-primary transition-colors line-clamp-2">
           {course.title}
         </h4>
         
-        <div className="mt-auto space-y-4">
-          <div className="space-y-2">
-            <div className="flex justify-between items-center text-[10px] font-black uppercase tracking-widest text-brand-text/40">
-              <span>Progress</span>
-              <span className={isCompleted ? 'text-green-500' : 'text-brand-primary'}>{progress}%</span>
+        <div className="mt-auto space-y-5">
+          <div className="space-y-2.5">
+            <div className="flex justify-between items-center text-[13px] font-semibold text-brand-text/50">
+              <span>Course Progress</span>
+              <span className={isCompleted ? 'text-green-500 font-bold' : 'text-brand-primary font-bold'}>{progress}%</span>
             </div>
-            <div className="h-2 w-full bg-brand-secondary/10 rounded-full overflow-hidden border border-brand-primary/5 p-[1px]">
+            <div className="h-2.5 w-full bg-gray-100 rounded-full overflow-hidden">
               <div 
                 className={`h-full rounded-full transition-all duration-1000 ${
-                  isCompleted ? 'bg-green-500 shadow-[0_0_10px_rgba(34,197,94,0.3)]' : 'bg-brand-primary shadow-[0_0_10px_rgba(206,56,190,0.3)]'
+                  isCompleted ? 'bg-green-500' : 'bg-gradient-to-r from-brand-primary to-brand-secondary'
                 }`}
                 style={{ width: `${progress}%` }}
               />
             </div>
           </div>
           
-          <div className="flex items-center justify-between text-[10px] font-bold text-brand-text/50 uppercase tracking-widest">
-            <span>{course.templates?.length ?? 0} Templates</span>
-            <span className="flex items-center gap-1 group-hover:text-brand-primary transition-colors">
-              Start <span className="text-lg">➔</span>
+          <div className="flex items-center justify-between pt-3 border-t border-gray-50">
+            <span className="text-sm font-semibold text-brand-text/40">
+              {course.templates?.length ?? 0} Modules
             </span>
+            <div className="flex items-center justify-center w-10 h-10 rounded-full bg-brand-primary/10 text-brand-primary group-hover:bg-brand-primary group-hover:text-white transition-all duration-300 cursor-pointer shadow-sm group-hover:shadow-md group-hover:-translate-y-0.5">
+              <span className="text-sm font-bold">➔</span>
+            </div>
           </div>
         </div>
       </div>

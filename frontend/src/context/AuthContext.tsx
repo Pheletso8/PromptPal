@@ -13,8 +13,8 @@ interface AuthContextType {
   user: AuthUser | null;
   token: string | null;
   isLoading: boolean;
-  login: (email: string, password: string) => Promise<void>;
-  register: (name: string, email: string, password: string) => Promise<void>;
+  login: (email: string, password: string) => Promise<AuthUser>;
+  register: (name: string, email: string, password: string) => Promise<AuthUser>;
   logout: () => void;
   refreshUser: () => Promise<void>;
   updateProfile: (profileData: { name?: string; email?: string; password?: string; profileImage?: string }) => Promise<void>;
@@ -62,6 +62,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       localStorage.setItem('token', data.token);
       setToken(data.token);
       setUser(data);
+      return data;
     } catch (err: any) {
       console.error('Login error:', err);
       throw new Error(err.message || 'Login failed. Please check your credentials and try again.');
@@ -78,6 +79,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       localStorage.setItem('token', data.token);
       setToken(data.token);
       setUser(data);
+      return data;
     } catch (err: any) {
       console.error('Registration error:', err);
       throw new Error(err.message || 'Registration failed. Please try again.');

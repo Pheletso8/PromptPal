@@ -40,7 +40,18 @@ export const getCourseById = async (req: Request & { user?: any }, res: Response
       // For the assessment section, we strip the correctAnswer before sending
       // so the client cannot cheat by inspecting the network response.
       const courseObj = course.toObject();
-      delete (courseObj as any).assessment?.correctAnswer;
+      
+      // Fallback for older courses with single 'assessment'
+      if ((courseObj as any).assessment) {
+        delete (courseObj as any).assessment.correctAnswer;
+      }
+      
+      if ((courseObj as any).assessments) {
+        (courseObj as any).assessments = (courseObj as any).assessments.map((a: any) => {
+          delete a.correctAnswer;
+          return a;
+        });
+      }
       res.json(courseObj);
     } else {
       res.status(404).json({ message: 'Course not found' });

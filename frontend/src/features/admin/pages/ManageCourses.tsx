@@ -1,12 +1,30 @@
 import { useState, useEffect } from 'react';
 import { api } from '../../../utils/api';
 import type { Course } from '../../../utils/api';
-import HomeNav from '../../User/home/components/HomeNav';
+import AdminLayout from '../components/AdminLayout';
 import { 
   Plus, Edit2, Trash2, Save, X, Image as ImageIcon, 
-  Type, Loader2, ArrowLeft, Users
+  Type, Loader2, Users
 } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
+
+const CourseSkeleton = () => (
+  <div className="bg-white border border-brand-primary/10 rounded-3xl overflow-hidden flex flex-col shadow-sm">
+    <div className="aspect-video relative overflow-hidden bg-brand-secondary/5 animate-pulse" />
+    <div className="p-8 flex-grow space-y-4">
+      <div className="h-6 bg-brand-primary/10 rounded-full w-3/4 animate-pulse" />
+      <div className="space-y-2">
+        <div className="h-4 bg-brand-primary/5 rounded-full w-full animate-pulse" />
+        <div className="h-4 bg-brand-primary/5 rounded-full w-5/6 animate-pulse" />
+      </div>
+      <div className="pt-4 border-t border-brand-primary/5 flex gap-4">
+        <div className="h-10 bg-brand-primary/5 rounded-xl w-1/3 animate-pulse" />
+        <div className="h-10 bg-brand-primary/5 rounded-xl w-1/3 animate-pulse" />
+        <div className="h-10 bg-brand-primary/5 rounded-xl w-1/4 animate-pulse" />
+      </div>
+    </div>
+  </div>
+);
 
 interface UserEntry {
   _id: string;
@@ -48,7 +66,17 @@ const ManageCourses = () => {
   };
 
   const handleEdit = (course: Course) => {
-    setEditingCourse({ ...course });
+    const editCourse = { ...course } as any;
+    // Normalize to assessments array
+    if (!editCourse.assessments || editCourse.assessments.length === 0) {
+      editCourse.assessments = editCourse.assessment 
+        ? [editCourse.assessment] 
+        : [{ question: '', options: ['', '', '', ''], correctAnswer: '' }];
+    }
+    if (!editCourse.templates || editCourse.templates.length === 0) {
+      editCourse.templates = [{ title: '', prompt: '', icon: '🤖' }];
+    }
+    setEditingCourse(editCourse);
     setIsModalOpen(true);
   };
 
@@ -59,8 +87,8 @@ const ManageCourses = () => {
       description: '',
       image: '',
       passingThreshold: 70,
-      templates: [{ title: '', prompt: '', icon: '' }],
-      assessment: { question: '', options: ['', '', ''], correctAnswer: '' }
+      templates: [{ title: '', prompt: '', icon: '🤖' }],
+      assessments: [{ question: '', options: ['', '', '', ''], correctAnswer: '' }]
     });
     setIsModalOpen(true);
   };
@@ -129,29 +157,19 @@ const ManageCourses = () => {
 
   if (isLoading) {
     return (
-      <div className="min-h-screen bg-brand-bg flex items-center justify-center">
-        <Loader2 className="w-12 h-12 text-brand-primary animate-spin" />
-      </div>
+      <AdminLayout title="Manage Courses" subtitle="Loading curriculum content...">
+        <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-8 pt-8">
+          <CourseSkeleton />
+          <CourseSkeleton />
+          <CourseSkeleton />
+        </div>
+      </AdminLayout>
     );
   }
 
   return (
-    <div className="min-h-screen bg-brand-bg text-brand-text font-sans selection:bg-brand-primary/30">
-      <HomeNav />
-      
-      <main className="max-w-7xl mx-auto pt-32 px-6 pb-20">
-        <div className="flex flex-col md:flex-row justify-between items-start md:items-end mb-12 gap-6">
-          <div>
-            <button 
-              onClick={() => navigate('/admin')}
-              className="flex items-center text-brand-text/50 hover:text-brand-primary transition-colors mb-4 group font-black text-xs uppercase tracking-widest"
-            >
-              <ArrowLeft className="w-4 h-4 mr-2 group-hover:-translate-x-1 transition-transform" />
-              Back to Stats
-            </button>
-            <h1 className="text-4xl font-black tracking-tight mb-2 text-brand-text italic">Manage <span className="text-brand-primary">Courses</span></h1>
-            <p className="text-brand-text/50 font-medium">Add, edit, or remove curriculum content</p>
-          </div>
+    <AdminLayout title="Manage Courses" subtitle="Add, edit, or remove curriculum content">
+        <div className="flex justify-end mb-12">
           <button 
             onClick={handleAddNew}
             className="px-8 py-4 bg-brand-primary hover:opacity-90 text-white rounded-2xl transition-all flex items-center gap-2 font-black italic uppercase tracking-widest shadow-xl shadow-brand-primary/20"
@@ -161,7 +179,7 @@ const ManageCourses = () => {
           </button>
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+        <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-8">
           {courses.map((course) => (
             <div key={course._id} className="bg-white border border-brand-primary/10 rounded-3xl overflow-hidden group hover:border-brand-primary/30 transition-all flex flex-col shadow-sm hover:shadow-md">
               <div className="aspect-video relative overflow-hidden bg-brand-secondary/10 flex items-center justify-center">
@@ -205,7 +223,6 @@ const ManageCourses = () => {
             </div>
           ))}
         </div>
-      </main>
 
       {/* Edit/Create Modal */}
       {isModalOpen && (
@@ -301,59 +318,110 @@ const ManageCourses = () => {
                 </div>
               </div>
 
-              {/* Assessment Section */}
+              {/* Templates Section */}
               <div className="space-y-6 pt-8 border-t border-brand-primary/5">
-                <h3 className="text-[10px] font-black uppercase tracking-[0.3em] text-brand-primary italic">Course Assessment</h3>
-                <div className="p-8 bg-brand-secondary/5 rounded-[2rem] border border-brand-primary/10 space-y-5">
-                  <div className="space-y-2">
-                     <label className="text-[10px] font-black uppercase tracking-[0.2em] text-brand-text/40 px-1">Question</label>
-                     <input 
-                       required
-                       value={editingCourse.assessment.question}
-                       onChange={(e) => setEditingCourse({
-                         ...editingCourse, 
-                         assessment: { ...editingCourse.assessment, question: e.target.value } 
-                       })}
-                       className="w-full bg-white border border-brand-primary/10 rounded-xl px-5 py-4 outline-none focus:border-brand-primary/50 transition-colors text-brand-text font-bold"
-                     />
-                  </div>
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
-                    {editingCourse.assessment.options.map((opt: string, idx: number) => (
-                      <div key={idx} className="space-y-2">
-                        <label className="text-[10px] font-black uppercase tracking-[0.2em] text-brand-text/40 px-1">Option {idx + 1}</label>
-                        <input 
-                          required
-                          value={opt}
-                          onChange={(e) => {
-                            const newOpts = [...editingCourse.assessment.options];
-                            newOpts[idx] = e.target.value;
-                            setEditingCourse({
-                              ...editingCourse,
-                              assessment: { ...editingCourse.assessment, options: newOpts }
-                            });
-                          }}
-                          className="w-full bg-white border border-brand-primary/10 rounded-xl px-5 py-3 outline-none focus:border-brand-primary/50 transition-colors text-sm text-brand-text font-medium"
-                        />
-                      </div>
-                    ))}
-                  </div>
-                  <div className="pt-4">
-                    <label className="text-[10px] font-black uppercase tracking-[0.2em] text-brand-text/40 block mb-2 px-1">Correct Answer</label>
-                    <select 
-                      value={editingCourse.assessment.correctAnswer}
-                      onChange={(e) => setEditingCourse({
-                        ...editingCourse,
-                        assessment: { ...editingCourse.assessment, correctAnswer: e.target.value }
-                      })}
-                      className="w-full bg-brand-primary/10 border border-brand-primary/30 rounded-xl px-5 py-4 outline-none font-black italic uppercase tracking-widest text-brand-primary appearance-none cursor-pointer"
-                    >
-                      <option value="" className="text-brand-text/40">Select the correct option...</option>
-                      {editingCourse.assessment.options.map((opt: string) => (
-                        <option key={opt} value={opt} className="bg-white text-brand-text py-2">{opt}</option>
-                      ))}
-                    </select>
-                  </div>
+                <div className="flex justify-between items-center mb-4">
+                  <h3 className="text-[10px] font-black uppercase tracking-[0.3em] text-brand-primary italic">Prompt Templates</h3>
+                  <button type="button" onClick={() => setEditingCourse({
+                    ...editingCourse,
+                    templates: [...editingCourse.templates, { title: '', prompt: '', icon: '🤖' }]
+                  })} className="text-[10px] text-brand-primary font-bold hover:underline">+ Add Template</button>
                 </div>
+                {editingCourse.templates.map((tpl: any, idx: number) => (
+                  <div key={idx} className="p-6 bg-brand-secondary/5 rounded-2xl border border-brand-primary/10 space-y-4 relative group/tpl">
+                    <button type="button" onClick={() => setEditingCourse({
+                      ...editingCourse,
+                      templates: editingCourse.templates.filter((_: any, i: number) => i !== idx)
+                    })} className="absolute top-4 right-4 text-red-400 opacity-0 group-hover/tpl:opacity-100 hover:text-red-500"><Trash2 className="w-4 h-4" /></button>
+                    <div className="grid grid-cols-2 gap-4">
+                      <div className="space-y-2">
+                        <label className="text-[10px] font-black uppercase tracking-[0.2em] text-brand-text/40 px-1">Title</label>
+                        <input required value={tpl.title} onChange={(e) => {
+                          const newTpls = [...editingCourse.templates];
+                          newTpls[idx] = { ...tpl, title: e.target.value };
+                          setEditingCourse({ ...editingCourse, templates: newTpls });
+                        }} className="w-full bg-white border border-brand-primary/10 rounded-xl px-4 py-3 outline-none focus:border-brand-primary/50 text-brand-text font-bold" />
+                      </div>
+                      <div className="space-y-2">
+                        <label className="text-[10px] font-black uppercase tracking-[0.2em] text-brand-text/40 px-1">Icon (Emoji)</label>
+                        <input required value={tpl.icon} onChange={(e) => {
+                          const newTpls = [...editingCourse.templates];
+                          newTpls[idx] = { ...tpl, icon: e.target.value };
+                          setEditingCourse({ ...editingCourse, templates: newTpls });
+                        }} className="w-full bg-white border border-brand-primary/10 rounded-xl px-4 py-3 outline-none focus:border-brand-primary/50 text-brand-text font-bold" />
+                      </div>
+                    </div>
+                    <div className="space-y-2">
+                      <label className="text-[10px] font-black uppercase tracking-[0.2em] text-brand-text/40 px-1">Detailed Prompt Template</label>
+                      <textarea required rows={8} value={tpl.prompt} onChange={(e) => {
+                        const newTpls = [...editingCourse.templates];
+                        newTpls[idx] = { ...tpl, prompt: e.target.value };
+                        setEditingCourse({ ...editingCourse, templates: newTpls });
+                      }} className="w-full bg-white border border-brand-primary/10 rounded-xl px-4 py-3 outline-none focus:border-brand-primary/50 text-brand-text font-mono text-sm whitespace-pre-wrap leading-relaxed" placeholder="Type a comprehensive default prompt..." />
+                    </div>
+                  </div>
+                ))}
+              </div>
+
+              {/* Assessment Section (Google Forms Style) */}
+              <div className="space-y-6 pt-8 border-t border-brand-primary/5">
+                <div className="flex justify-between items-center mb-4">
+                  <h3 className="text-[10px] font-black uppercase tracking-[0.3em] text-brand-primary italic">Assessments ({editingCourse.assessments.length})</h3>
+                  <button type="button" onClick={() => setEditingCourse({
+                    ...editingCourse,
+                    assessments: [...editingCourse.assessments, { question: '', options: ['', '', '', ''], correctAnswer: '' }]
+                  })} className="text-[10px] text-brand-primary font-bold hover:underline">+ Add Question</button>
+                </div>
+                {editingCourse.assessments.map((assmt: any, qIdx: number) => (
+                  <div key={qIdx} className="p-8 bg-brand-secondary/5 rounded-[2rem] border border-brand-primary/10 space-y-5 relative group/q pb-6 mb-6">
+                    <button type="button" onClick={() => setEditingCourse({
+                      ...editingCourse,
+                      assessments: editingCourse.assessments.filter((_: any, i: number) => i !== qIdx)
+                    })} className="absolute top-6 right-6 text-red-400 opacity-0 group-hover/q:opacity-100 hover:text-red-500"><Trash2 className="w-5 h-5" /></button>
+                    
+                    <div className="space-y-2 pr-8">
+                       <label className="text-[10px] font-black uppercase tracking-[0.2em] text-brand-text/40 px-1">Question {qIdx + 1}</label>
+                       <input required value={assmt.question} onChange={(e) => {
+                           const newAssmts = [...editingCourse.assessments];
+                           newAssmts[qIdx] = { ...assmt, question: e.target.value };
+                           setEditingCourse({ ...editingCourse, assessments: newAssmts });
+                       }} className="w-full bg-white border border-brand-primary/10 rounded-xl px-5 py-4 outline-none focus:border-brand-primary/50 transition-colors text-brand-text font-bold" placeholder="E.g. What is the main purpose of..." />
+                    </div>
+
+                    <div className="space-y-3 pt-2">
+                      <label className="text-[10px] font-black uppercase tracking-[0.2em] text-brand-text/40 px-1">Options</label>
+                      {assmt.options.map((opt: string, optIdx: number) => (
+                        <div key={optIdx} className="flex items-center gap-3">
+                          <div className={`w-5 h-5 rounded-full border-2 flex items-center justify-center flex-shrink-0 ${assmt.correctAnswer === opt && opt !== '' ? 'border-brand-primary bg-brand-primary/10' : 'border-brand-primary/20'}`}>
+                            {assmt.correctAnswer === opt && opt !== '' && <div className="w-2.5 h-2.5 rounded-full bg-brand-primary" />}
+                          </div>
+                          <input required value={opt} onChange={(e) => {
+                              const newAssmts = [...editingCourse.assessments];
+                              const newOpts = [...assmt.options];
+                              newOpts[optIdx] = e.target.value;
+                              
+                              // if this option was the correct answer, update the exact string reference
+                              let newCorrect = assmt.correctAnswer;
+                              if (assmt.correctAnswer === opt && opt !== '') {
+                                newCorrect = e.target.value;
+                              }
+                              
+                              newAssmts[qIdx] = { ...assmt, options: newOpts, correctAnswer: newCorrect };
+                              setEditingCourse({ ...editingCourse, assessments: newAssmts });
+                          }} className="flex-1 bg-white border border-brand-primary/10 rounded-xl px-5 py-3 outline-none focus:border-brand-primary/50 text-sm text-brand-text font-medium" placeholder={`Option ${optIdx + 1}`} />
+                          
+                          {/* Set as correct answer button */}
+                          <button type="button" onClick={() => {
+                            if (!opt) return; // avoid empty correct answers
+                            const newAssmts = [...editingCourse.assessments];
+                            newAssmts[qIdx] = { ...assmt, correctAnswer: opt };
+                            setEditingCourse({ ...editingCourse, assessments: newAssmts });
+                          }} className={`text-[10px] font-bold px-3 py-1 rounded-lg border ${assmt.correctAnswer === opt && opt !== '' ? 'bg-brand-primary text-white border-brand-primary' : 'bg-transparent text-brand-primary/50 border-brand-primary/20 hover:bg-brand-primary/10 hover:text-brand-primary'}`}>Correct</button>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                ))}
               </div>
 
               <div className="pt-8 flex justify-end gap-4">
@@ -434,7 +502,7 @@ const ManageCourses = () => {
           </div>
         </div>
       )}
-    </div>
+    </AdminLayout>
   );
 };
 

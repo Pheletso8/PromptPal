@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import { DetailNav } from '../components/DetailNav';
+import { Copy, CheckCircle2 } from 'lucide-react';
 import { LearningGuardrails } from '../components/LearningGuardrails';
 import { api, type Course, type AssessmentResult } from '../../../../utils/api';
 import { useAuth } from '../../../../context/AuthContext';
@@ -14,7 +15,7 @@ const CourseDetail: React.FC = () => {
   const [error, setError] = useState('');
 
   // Quiz state
-  const [selectedAnswer, setSelectedAnswer] = useState<string | null>(null);
+  const [answers, setAnswers] = useState<string[]>([]);
   const [result, setResult] = useState<AssessmentResult | null>(null);
   const [submitting, setSubmitting] = useState(false);
 
@@ -37,15 +38,22 @@ const CourseDetail: React.FC = () => {
     setTimeout(() => setCopied(null), 2000);
   };
 
-  // Submit the selected quiz answer to the backend for validation
+  // Submit the selected quiz answers to the backend for validation
   const handleSubmitAssessment = async () => {
-    if (!selectedAnswer || !id) return;
+    if (!id) return;
+    const items = course?.assessments?.length ? course.assessments : (course?.assessment ? [course.assessment] : []);
+    if (answers.filter(Boolean).length !== items.length) {
+      alert('Please answer all questions before submitting.');
+      return;
+    }
     setSubmitting(true);
     try {
-      const res = await api.submitAssessment(id, selectedAnswer);
+      const res = await api.submitAssessment(id, answers);
       setResult(res);
-      // Refresh the user profile so stars/assessmentsPassed update in the nav
-      await refreshUser();
+      if (res.passed) {
+        // Refresh the user profile so stars/assessmentsPassed update in the nav
+        await refreshUser();
+      }
     } catch (err: any) {
       setResult({ passed: false, score: 0, message: err.message || 'Submission failed', stars: 0 });
     } finally {
@@ -53,10 +61,28 @@ const CourseDetail: React.FC = () => {
     }
   };
 
+  const handleSelectAnswer = (qIndex: number, opt: string) => {
+    if (result && result.locked) return;
+    const newAnswers = [...answers];
+    newAnswers[qIndex] = opt;
+    setAnswers(newAnswers);
+  };
+
   // ── Loading / Error states ─────────────────────────────────────────────────
   if (loading) return (
-    <div className="min-h-screen bg-brand-bg flex items-center justify-center">
-      <div className="w-8 h-8 border-2 border-brand-primary border-t-transparent rounded-full animate-spin" />
+    <div className="min-h-screen bg-brand-bg font-sans pb-24 relative overflow-hidden">
+      <DetailNav />
+      <div className="max-w-5xl mx-auto px-8 pt-32">
+        <div className="flex items-center space-x-5 mb-12 bg-white p-6 rounded-3xl border border-brand-primary/10 shadow-lg animate-pulse">
+          <div className="w-20 h-6 bg-brand-primary/20 rounded-full" />
+          <div className="w-64 h-8 bg-brand-primary/10 rounded-xl" />
+        </div>
+        <div className="mb-20 rounded-[2.5rem] aspect-video bg-white shadow-xl animate-pulse" />
+        <div className="mb-20 p-10 rounded-[2.5rem] border border-brand-primary/10 bg-white animate-pulse">
+          <div className="w-1/3 h-8 bg-brand-primary/10 rounded-xl mb-6" />
+          <div className="w-full h-32 bg-brand-secondary/10 rounded-2xl" />
+        </div>
+      </div>
     </div>
   );
 
@@ -141,9 +167,19 @@ const CourseDetail: React.FC = () => {
                         </div>
                         <button
                           onClick={() => copyToClipboard(t.prompt, key)}
-                          className="text-[10px] font-black text-brand-primary hover:opacity-70 uppercase tracking-widest transition-all"
+                          className="flex items-center gap-1.5 text-[10px] font-black bg-brand-primary/10 text-brand-primary hover:bg-brand-primary/20 px-3 py-1.5 rounded-full uppercase tracking-widest transition-all"
                         >
-                          {copied === key ? 'Copied!' : 'Copy Template'}
+                          {copied === key ? (
+                            <>
+                              <CheckCircle2 className="w-3.5 h-3.5" />
+                              Copied!
+                            </>
+                          ) : (
+                            <>
+                              <Copy className="w-3.5 h-3.5" />
+                              Copy Template
+                            </>
+                          )}
                         </button>
                       </div>
                       <div className="relative p-5 rounded-xl bg-brand-secondary/10 border border-brand-primary/5">
@@ -157,63 +193,102 @@ const CourseDetail: React.FC = () => {
           )}
 
           {/* Assessment / Quiz */}
-          {course.assessment && (
+          {(course.assessments?.length > 0 || course.assessment) && (
             <section className="mb-20 pt-16 border-t border-brand-primary/10">
-              <h3 className="text-3xl font-black italic mb-10 tracking-tighter text-brand-text">Knowledge Check</h3>
+              <div className="flex justify-between items-center mb-10">
+                <h3 className="text-3xl font-black italic tracking-tighter text-brand-text">Knowledge Check</h3>
+                {result && result.attempts !== undefined && (
+                  <div className="bg-brand-secondary/10 px-4 py-2 rounded-full border border-brand-primary/20">
+                    <span className="text-xs font-bold text-brand-primary uppercase tracking-widest">
+                      Attempts: {result.attempts}/3
+                    </span>
+                  </div>
+                )}
+              </div>
               <div className="bg-white p-10 rounded-[2.5rem] border border-brand-primary/10 backdrop-blur-md shadow-sm">
-                <p className="text-xl font-medium mb-8 text-brand-text/80 leading-snug">{course.assessment.question}</p>
+                
+                {(course.assessments?.length ? course.assessments : (course.assessment ? [course.assessment] : [])).map((assmt, qIndex) => {
+                  
+                  // Was this specific question wrong?
+                  const correction = result?.corrections?.find(c => c.questionIndex === qIndex);
+                  
+                  return (
+                    <div key={qIndex} className="mb-10 last:mb-0 border-b border-brand-primary/5 last:border-0 pb-10 last:pb-0">
+                      <p className="text-xl font-medium mb-6 text-brand-text/80 leading-snug">
+                        <span className="text-brand-primary font-black mr-2">{qIndex + 1}.</span> 
+                        {assmt.question}
+                      </p>
 
-                <div className="grid gap-4 mb-8">
-                  {course.assessment.options.map((opt, i) => (
-                    <button
-                      key={i}
-                      onClick={() => { if (!result) setSelectedAnswer(opt); }}
-                      disabled={!!result}
-                      className={`w-full text-left p-5 rounded-2xl border transition-all text-sm font-medium group ${
-                        selectedAnswer === opt
-                          ? 'border-brand-primary/60 bg-brand-primary/10 text-brand-text'
-                          : 'border-brand-primary/10 bg-brand-bg/50 hover:border-brand-primary/40 hover:bg-brand-primary/5'
-                      } disabled:opacity-70 disabled:cursor-default`}
-                    >
-                      <span className="mr-4 opacity-30 group-hover:opacity-100 transition-opacity">{i + 1}.</span>
-                      {opt}
-                    </button>
-                  ))}
-                </div>
+                      <div className="grid gap-4 mb-4">
+                        {assmt.options.map((opt: string, i: number) => {
+                          const isSelected = answers[qIndex] === opt;
+                          const isCorrectionWrong = correction && correction.yourAnswer === opt;
+                          
+                          let btnClass = isSelected 
+                            ? 'border-brand-primary/60 bg-brand-primary/10 text-brand-text'
+                            : 'border-brand-primary/10 bg-brand-bg/50 hover:border-brand-primary/40 hover:bg-brand-primary/5';
+                            
+                          if (isCorrectionWrong) {
+                            btnClass = 'border-red-500/60 bg-red-500/10 text-red-600 line-through opacity-70';
+                          }
+
+                          return (
+                            <button
+                              key={i}
+                              onClick={() => { if (!result?.passed && !result?.locked) handleSelectAnswer(qIndex, opt); }}
+                              disabled={!!result?.passed || !!result?.locked}
+                              className={`w-full text-left p-5 rounded-2xl border transition-all text-sm font-medium group ${btnClass} disabled:cursor-default`}
+                            >
+                              <span className="mr-4 opacity-30 group-hover:opacity-100 transition-opacity">{i + 1}.</span>
+                              {opt}
+                            </button>
+                          );
+                        })}
+                      </div>
+                      
+                      {correction && (
+                        <div className="bg-brand-secondary/10 p-4 rounded-xl border border-brand-primary/10">
+                          <p className="text-xs font-bold text-brand-primary">💡 Hint: The chosen answer was incorrect. Try another option.</p>
+                        </div>
+                      )}
+                    </div>
+                  );
+                })}
 
                 {/* Result feedback */}
                 {result && (
-                  <div className={`p-6 rounded-2xl border mb-6 ${result.passed ? 'border-green-500/40 bg-green-500/10' : 'border-red-500/40 bg-red-500/10'}`}>
-                    <p className={`font-black text-lg mb-1 ${result.passed ? 'text-green-600' : 'text-red-500'}`}>
-                      {result.passed ? '🎉 Correct!' : '❌ Not quite'}
+                  <div className={`mt-8 p-6 rounded-2xl border mb-6 ${result.passed ? 'border-green-500/40 bg-green-500/10' : (result.locked ? 'border-gray-500/40 bg-gray-500/10' : 'border-red-500/40 bg-red-500/10')}`}>
+                    <p className={`font-black text-lg mb-1 ${result.passed ? 'text-green-600' : (result.locked ? 'text-gray-600' : 'text-red-500')}`}>
+                      {result.passed ? '🎉 Passed!' : (result.locked ? '🔒 Locked Out' : '❌ Not quite')}
                     </p>
-                    <p className="text-sm text-brand-text/70">{result.message}</p>
+                    <p className="text-sm text-brand-text/70">{result.message} {result.score !== undefined && `(Score: ${result.score.toFixed(0)}%)`}</p>
                     {result.passed && (
                       <p className="text-xs text-brand-text/80 mt-2 font-bold bg-brand-accent/20 px-3 py-1 rounded-full inline-block">⭐ You earned stars! Total: {result.stars}</p>
                     )}
                   </div>
                 )}
 
-                {/* Submit button */}
-                {!result && (
-                  <button
-                    onClick={handleSubmitAssessment}
-                    disabled={!selectedAnswer || submitting}
-                    className="bg-brand-primary hover:opacity-90 transition-all px-8 py-4 rounded-2xl font-bold text-white shadow-lg shadow-brand-primary/20 disabled:opacity-40 disabled:cursor-not-allowed"
-                  >
-                    {submitting ? 'Checking...' : 'Submit Answer'}
-                  </button>
-                )}
+                {/* Actions */}
+                <div className="mt-8 flex items-center gap-4">
+                  {(!result || (!result.passed && !result.locked)) && (
+                    <button
+                      onClick={handleSubmitAssessment}
+                      disabled={submitting || answers.filter(Boolean).length < (course.assessments?.length || 1)}
+                      className="bg-brand-primary hover:opacity-90 transition-all px-8 py-4 rounded-2xl font-bold text-white shadow-lg shadow-brand-primary/20 disabled:opacity-40 disabled:cursor-not-allowed"
+                    >
+                      {submitting ? 'Checking...' : (result ? 'Submit Again' : 'Submit Answers')}
+                    </button>
+                  )}
 
-                {/* Retry */}
-                {result && !result.passed && (
-                  <button
-                    onClick={() => { setResult(null); setSelectedAnswer(null); }}
-                    className="mt-4 text-sm text-brand-primary hover:opacity-70 underline ml-2"
-                  >
-                    Try Again
-                  </button>
-                )}
+                  {result && !result.passed && !result.locked && (
+                    <button
+                      onClick={() => { setResult(null); setAnswers([]); }}
+                      className="text-sm text-brand-primary hover:opacity-70 underline font-bold"
+                    >
+                      Clear & Try Again
+                    </button>
+                  )}
+                </div>
               </div>
             </section>
           )}

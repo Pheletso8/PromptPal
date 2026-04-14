@@ -21,7 +21,7 @@ export interface ICourse extends Document {
   whyLearn: string;
   lessonTopic: string;
   templates: ICourseTemplate[];
-  assessment: IAssessment;
+  assessments: IAssessment[];
   passingThreshold: number;
 }
 
@@ -38,11 +38,11 @@ const CourseSchema: Schema = new Schema({
     prompt: { type: String },
     icon: { type: String },
   }],
-  assessment: {
+  assessments: [{
     question: { type: String },
     options: [{ type: String }],
     correctAnswer: { type: String }
-  },
+  }],
   passingThreshold: { type: Number, default: 70 }
 }, {
   timestamps: true,

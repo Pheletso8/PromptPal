@@ -5,13 +5,15 @@ export interface IAssessmentMark extends Document {
   course: mongoose.Types.ObjectId;
   score: number;
   passed: boolean;
+  attempts: number;
 }
 
 const AssessmentMarkSchema: Schema = new Schema({
   user: { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true },
   course: { type: mongoose.Schema.Types.ObjectId, ref: 'Course', required: true },
   score: { type: Number, required: true },
-  passed: { type: Boolean, required: true, default: false }
+  passed: { type: Boolean, required: true, default: false },
+  attempts: { type: Number, required: true, default: 0 }
 }, {
   timestamps: true,
 });

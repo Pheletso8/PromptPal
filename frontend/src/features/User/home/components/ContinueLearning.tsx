@@ -35,7 +35,7 @@ const ContinueLearning = ({ courses }: Props) => {
         </div>
       </div>
 
-      <div className="relative group overflow-hidden rounded-[2.5rem] border border-brand-primary/10 bg-white p-1 md:p-1.5 transition-all hover:border-brand-primary/30 shadow-xl shadow-brand-primary/5">
+      <div className="relative group overflow-hidden rounded-[2.5rem] border border-gray-50 bg-white p-1 md:p-1.5 transition-all hover:border-brand-primary/20 shadow-[0_8px_30px_rgb(0,0,0,0.04)]">
         <div className="bg-white/80 backdrop-blur-xl rounded-[2.2rem] p-8 md:p-12 md:flex items-center justify-between relative overflow-hidden">
           {/* Animated Background Elements */}
           <div className="absolute -right-20 -top-20 w-80 h-80 bg-brand-primary/10 blur-[100px] animate-pulse pointer-events-none" />
@@ -62,9 +62,9 @@ const ContinueLearning = ({ courses }: Props) => {
                 <span>Course Progress</span>
                 <span className="text-brand-primary">{progress}% Complete</span>
               </div>
-              <div className="h-4 w-full bg-brand-secondary/10 rounded-full overflow-hidden border border-brand-primary/5 p-[3px]">
+              <div className="h-4 w-full bg-gray-100 rounded-full overflow-hidden border border-gray-50 p-[3px]">
                 <div 
-                  className="h-full bg-gradient-to-r from-brand-primary to-brand-primary/60 rounded-full shadow-[0_0_15px_rgba(206,56,190,0.3)] transition-all duration-1000"
+                  className="h-full bg-gradient-to-r from-brand-primary to-brand-secondary rounded-full shadow-[0_0_15px_rgba(107,33,168,0.3)] transition-all duration-1000"
                   style={{ width: `${progress}%` }}
                 />
               </div>
@@ -73,7 +73,7 @@ const ContinueLearning = ({ courses }: Props) => {
 
           <Link
             to={`/course/${activeCourse._id}`}
-            className="relative z-10 mt-10 md:mt-0 flex items-center justify-center gap-3 bg-brand-primary text-white px-10 py-5 rounded-2xl font-black italic uppercase tracking-widest text-sm transition-all hover:opacity-90 hover:scale-105 active:scale-95 shadow-2xl shadow-brand-primary/20 group/btn"
+            className="relative z-10 mt-10 md:mt-0 flex items-center justify-center gap-3 bg-brand-primary text-white px-10 py-5 rounded-full font-bold tracking-widest text-sm transition-all hover:-translate-y-1 active:scale-95 shadow-[0_4px_14px_0_rgba(107,33,168,0.25)] hover:shadow-[0_6px_20px_rgba(107,33,168,0.23)] group/btn border border-white/20"
           >
             Resume Lesson
             <span className="text-xl group-hover/btn:translate-x-1 transition-transform">➔</span>

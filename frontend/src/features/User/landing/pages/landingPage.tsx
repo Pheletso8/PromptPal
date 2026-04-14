@@ -16,14 +16,14 @@ const Landing: React.FC = () => {
   if (loading) return <Loader />;
 
   return (
-    <div className="min-h-screen bg-brand-bg text-brand-text font-sans selection:bg-brand-primary/30 overflow-x-hidden animate-in fade-in duration-1000">
+    <div className="min-h-screen bg-gradient-to-br from-brand-bg via-white to-brand-secondary/5 text-brand-text font-sans selection:bg-brand-primary/30 overflow-x-hidden animate-in fade-in duration-1000">
       <Navbar />
       <Hero />
 
       {/* Cinematic Image Section */}
       <div className="relative max-w-7xl mx-auto px-4 pb-12 group">
-        <div className="absolute -inset-4 bg-brand-primary/5 rounded-[3rem] blur-3xl group-hover:bg-brand-primary/10 transition-all duration-700"></div>
-        <div className="relative rounded-[2.5rem] overflow-hidden border border-brand-primary/10 shadow-2xl">
+        <div className="absolute -inset-4 bg-brand-primary/5 rounded-[3.5rem] blur-3xl group-hover:bg-brand-primary/10 transition-all duration-700"></div>
+        <div className="relative rounded-[3rem] overflow-hidden shadow-[0_20px_50px_rgba(107,33,168,0.1)] border border-white">
           <img src={landingImage} alt="Modern Learning" className="w-full h-auto object-cover min-h-100 transition-transform duration-1000 group-hover:scale-105" />
           <div className="absolute inset-0 bg-linear-to-t from-white via-white/20 to-transparent"></div>
           <div className="absolute bottom-12 left-12 right-12">

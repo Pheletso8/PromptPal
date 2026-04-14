@@ -1,5 +1,5 @@
 export const PromptIntroduction = () => (
-  <section className="mb-16 p-8 rounded-[2.5rem] border border-brand-primary/10 bg-brand-secondary/5 relative overflow-hidden group">
+  <section className="mb-16 p-8 rounded-[2.5rem] border border-gray-100 bg-white shadow-[0_4px_30px_rgb(0,0,0,0.03)] relative overflow-hidden group">
     {/* Decorative Background Glow */}
     <div className="absolute top-0 right-0 w-64 h-64 bg-brand-primary/5 blur-[100px] pointer-events-none" />
     
@@ -31,8 +31,8 @@ export const PromptIntroduction = () => (
       </div>
 
       <div className="mt-8 md:mt-0 shrink-0">
-        <div className="p-6 rounded-3xl border border-brand-primary/10 bg-white/40 backdrop-blur-md max-w-xs shadow-sm">
-          <h4 className="text-brand-primary font-black text-xs uppercase mb-4 tracking-widest underline decoration-brand-primary/30">Your New Superpower</h4>
+        <div className="p-8 rounded-[2rem] border border-brand-primary/5 bg-gradient-to-br from-brand-bg to-white backdrop-blur-md max-w-xs shadow-sm">
+          <h4 className="text-brand-primary font-bold text-xs uppercase mb-6 tracking-widest underline decoration-brand-primary/30 text-center">Your New Superpower</h4>
           <ul className="space-y-4 text-xs font-medium text-brand-text/80">
             <li className="flex items-start gap-3 group/item">
               <span className="text-xl transition-transform group-hover/item:scale-125">🎓</span>

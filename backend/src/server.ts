@@ -7,6 +7,7 @@ import adminRoutes from './routes/adminRoutes';
 import courseRoutes from './routes/courseRoutes';
 import assessmentRoutes from './routes/assessmentRoutes';
 import leaderboardRoutes from './routes/leaderboardRoutes';
+import configRoutes from './routes/configRoutes';
 
 dotenv.config();
 
@@ -26,6 +27,7 @@ app.use('/api/admin', adminRoutes);
 app.use('/api/courses', courseRoutes);
 app.use('/api/assessments', assessmentRoutes);
 app.use('/api/leaderboard', leaderboardRoutes);
+app.use('/api/config', configRoutes);
 
 // Health check endpoint
 app.get('/api/status', (req, res) => {

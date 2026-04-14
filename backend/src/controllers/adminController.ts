@@ -84,6 +84,8 @@ export const deleteCourse = async (req: AuthRequest, res: Response): Promise<voi
   }
 };
 
+import AssessmentMark from '../models/AssessmentMark';
+
 // @desc    Get Admin Dashboard Stats
 // @route   GET /api/admin/stats
 // @access  Private/Admin
@@ -92,18 +94,76 @@ export const getDashboardStats = async (req: AuthRequest, res: Response): Promis
     const totalUsers = await User.countDocuments({ role: 'user' });
     const totalCourses = await Course.countDocuments();
     
-    // Simple mock stats for charts until real progression tracking is implemented
+    // Live Pulse: Last 7 days activity
+    const last7Days = Array.from({length: 7}).map((_, i) => {
+      const d = new Date();
+      d.setDate(d.getDate() - (6 - i));
+      return {
+        dateStr: d.toISOString().split('T')[0],
+        name: ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'][d.getDay()],
+        value: 0
+      };
+    });
+
+    const startIdxDate = new Date();
+    startIdxDate.setDate(startIdxDate.getDate() - 7);
+
+    const pulseRaw = await AssessmentMark.aggregate([
+      {
+        $match: {
+          updatedAt: { $gte: startIdxDate }
+        }
+      },
+      {
+        $group: {
+          _id: { $dateToString: { format: "%Y-%m-%d", date: "$updatedAt" } },
+          count: { $sum: 1 }
+        }
+      }
+    ]);
+
+    const livePulse = last7Days.map(day => {
+      const match = pulseRaw.find(p => p._id === day.dateStr);
+      return { name: day.name, value: match ? match.count : 0 };
+    });
+
+    const successMetrics = await AssessmentMark.aggregate([
+      {
+        $lookup: {
+          from: 'courses',
+          localField: 'course',
+          foreignField: '_id',
+          as: 'courseDoc'
+        }
+      },
+      { $unwind: '$courseDoc' },
+      {
+        $group: {
+          _id: '$courseDoc.tag',
+          passing: { $sum: { $cond: [ { $eq: ['$passed', true] }, 1, 0 ] } },
+          progressing: { $sum: { $cond: [ { $eq: ['$passed', false] }, 1, 0 ] } }
+        }
+      },
+      {
+        $project: {
+          _id: 0,
+          name: '$_id',
+          passing: 1,
+          progressing: 1
+        }
+      }
+    ]);
+
+    const activeUsersAgg = await AssessmentMark.aggregate([
+      { $match: { updatedAt: { $gte: new Date(new Date().setHours(0,0,0,0)) } } },
+      { $group: { _id: '$user' } },
+      { $count: 'active' }
+    ]);
+    const activeUsers = activeUsersAgg.length > 0 ? activeUsersAgg[0].active : 0;
+
     const stats = {
-      livePulse: [
-        { name: 'Mon', value: 40 },
-        { name: 'Tue', value: 30 },
-        { name: 'Wed', value: 60 },
-        { name: 'Thu', value: 45 },
-        { name: 'Fri', value: 75 },
-        { name: 'Sat', value: 35 },
-        { name: 'Sun', value: 50 },
-      ],
-      activeUsers: Math.floor(totalUsers * 0.7), // 70% active DAU mock
+      livePulse,
+      activeUsers,
       courseDistribution: await Course.aggregate([
         {
           $lookup: {
@@ -115,20 +175,12 @@ export const getDashboardStats = async (req: AuthRequest, res: Response): Promis
         },
         {
           $project: {
-            name: '$tag',
+            name: { $ifNull: ['$tag', 'Unknown'] },
             value: { $size: '$enrolledStudents' }
           }
         }
       ]),
-      successMetrics: await Course.aggregate([
-        {
-          $project: {
-            name: '$tag',
-            passing: { $multiply: [{ $rand: {} }, 50] }, // Mock data
-            progressing: { $multiply: [{ $rand: {} }, 50] } // Mock data
-          }
-        }
-      ]),
+      successMetrics: successMetrics.length ? successMetrics : [{ name: 'N/A', passing: 0, progressing: 0 }],
       totalUsers,
       totalCourses,
     };
@@ -147,6 +199,55 @@ export const getAllUsers = async (req: AuthRequest, res: Response): Promise<void
   try {
     const users = await User.find({ role: 'user' }).select('-password');
     res.json(users);
+  } catch (error) {
+    res.status(500).json({ message: 'Server error' });
+  }
+};
+
+// @desc    Update user
+// @route   PUT /api/admin/users/:id
+// @access  Private/Admin
+export const updateUser = async (req: AuthRequest, res: Response): Promise<void> => {
+  try {
+    const user = await User.findById(req.params.id);
+    if (!user) {
+      res.status(404).json({ message: 'User not found' });
+      return;
+    }
+    user.name = req.body.name || user.name;
+    user.email = req.body.email || user.email;
+    const updatedUser = await user.save();
+    res.json(updatedUser);
+  } catch (error) {
+    res.status(500).json({ message: 'Server error' });
+  }
+};
+
+// @desc    Toggle user status
+// @route   PUT /api/admin/users/:id/toggle
+// @access  Private/Admin
+export const toggleUserStatus = async (req: AuthRequest, res: Response): Promise<void> => {
+  try {
+    const user = await User.findById(req.params.id);
+    if (!user) {
+      res.status(404).json({ message: 'User not found' });
+      return;
+    }
+    user.disabled = !user.disabled;
+    const updatedUser = await user.save();
+    res.json(updatedUser);
+  } catch (error) {
+    res.status(500).json({ message: 'Server error' });
+  }
+};
+
+// @desc    Delete user
+// @route   DELETE /api/admin/users/:id
+// @access  Private/Admin
+export const adminDeleteUser = async (req: AuthRequest, res: Response): Promise<void> => {
+  try {
+    await User.findByIdAndDelete(req.params.id);
+    res.json({ message: 'User deleted' });
   } catch (error) {
     res.status(500).json({ message: 'Server error' });
   }

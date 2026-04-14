@@ -1,11 +1,16 @@
 @import "tailwindcss";
 
 @theme {
-  --color-brand-text: #120410;
-  --color-brand-bg: #fef9fd;
-  --color-brand-primary: #ce38be;
-  --color-brand-secondary: #e5bf98;
-  --color-brand-accent: #d7da6a;
+  --color-brand-text: #1e1b4b;
+  --color-brand-bg: #f8f9fc;
+  --color-brand-primary: #6b21a8;
+  --color-brand-secondary: #8b5cf6;
+  --color-brand-accent: #fbbf24;
+  --font-sans: "Outfit", sans-serif;
+}
+
+body {
+  font-family: var(--font-sans);
 }
 
 @keyframes fadeInUp { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
