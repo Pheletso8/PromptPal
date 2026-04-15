@@ -7,7 +7,7 @@
  * - Shows validation errors returned from the backend.
  */
 import React, { useState } from 'react';
-import { useNavigate, Link } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../../../../context/AuthContext';
 
 const AuthPage: React.FC = () => {
