@@ -14,6 +14,7 @@ interface AuthContextType {
   token: string | null;
   isLoading: boolean;
   login: (email: string, password: string) => Promise<AuthUser>;
+  loginStaff: (email: string, password: string) => Promise<AuthUser>;
   register: (name: string, email: string, password: string) => Promise<AuthUser>;
   logout: () => void;
   refreshUser: () => Promise<void>;
@@ -69,6 +70,22 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     }
   };
 
+  const loginStaff = async (email: string, password: string) => {
+    try {
+      const data = await api.loginStaff(email, password);
+      if (!data.token) {
+        throw new Error('Staff login failed: No token received from server');
+      }
+      localStorage.setItem('token', data.token);
+      setToken(data.token);
+      setUser(data);
+      return data;
+    } catch (err: any) {
+      console.error('Staff login error:', err);
+      throw new Error(err.message || 'Staff login failed. Please check your credentials and try again.');
+    }
+  };
+
   // ─── Register ─────────────────────────────────────────────────────────────
   const register = async (name: string, email: string, password: string) => {
     try {
@@ -99,7 +116,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   };
 
   return (
-    <AuthContext.Provider value={{ user, token, isLoading, login, register, logout, refreshUser, updateProfile }}>
+    <AuthContext.Provider value={{ user, token, isLoading, login, loginStaff, register, logout, refreshUser, updateProfile }}>
       {children}
     </AuthContext.Provider>
   );

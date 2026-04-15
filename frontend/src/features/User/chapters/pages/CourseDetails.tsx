@@ -41,8 +41,8 @@ const CourseDetail: React.FC = () => {
   // Submit the selected quiz answers to the backend for validation
   const handleSubmitAssessment = async () => {
     if (!id) return;
-    const items = course?.assessments?.length ? course.assessments : (course?.assessment ? [course.assessment] : []);
-    if (answers.filter(Boolean).length !== items.length) {
+    const items = (course?.assessments?.length) ? course.assessments : (course?.assessment ? [course.assessment] : []);
+    if (items && answers.filter(Boolean).length !== items.length) {
       alert('Please answer all questions before submitting.');
       return;
     }
@@ -140,7 +140,7 @@ const CourseDetail: React.FC = () => {
           )}
 
           {/* Prompting Lab */}
-          {course.templates?.length > 0 && (
+          {(course.templates?.length ?? 0) > 0 && (
             <section className="mb-20 p-10 rounded-[2.5rem] border border-brand-primary/20 bg-brand-primary/5 backdrop-blur-md">
               <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-8 gap-4">
                 <div className="flex items-center space-x-3">
@@ -193,7 +193,7 @@ const CourseDetail: React.FC = () => {
           )}
 
           {/* Assessment / Quiz */}
-          {(course.assessments?.length > 0 || course.assessment) && (
+          {((course.assessments?.length ?? 0) > 0 || course.assessment) && (
             <section className="mb-20 pt-16 border-t border-brand-primary/10">
               <div className="flex justify-between items-center mb-10">
                 <h3 className="text-3xl font-black italic tracking-tighter text-brand-text">Knowledge Check</h3>
@@ -273,7 +273,7 @@ const CourseDetail: React.FC = () => {
                   {(!result || (!result.passed && !result.locked)) && (
                     <button
                       onClick={handleSubmitAssessment}
-                      disabled={submitting || answers.filter(Boolean).length < (course.assessments?.length || 1)}
+                      disabled={submitting || answers.filter(Boolean).length < (course.assessments?.length || (course.assessment ? 1 : 0))}
                       className="bg-brand-primary hover:opacity-90 transition-all px-8 py-4 rounded-2xl font-bold text-white shadow-lg shadow-brand-primary/20 disabled:opacity-40 disabled:cursor-not-allowed"
                     >
                       {submitting ? 'Checking...' : (result ? 'Submit Again' : 'Submit Answers')}

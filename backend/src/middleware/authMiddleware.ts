@@ -17,6 +17,10 @@ export const protect = async (req: AuthRequest, res: Response, next: NextFunctio
       const decoded: any = jwt.verify(token, process.env.JWT_SECRET as string);
 
       req.user = await User.findById(decoded.id).select('-password');
+      if (!req.user) {
+        res.status(401).json({ message: 'User no longer exists' });
+        return;
+      }
       return next();
     } catch (error) {
       console.error(error);

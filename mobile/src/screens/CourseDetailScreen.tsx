@@ -92,7 +92,10 @@ export default function CourseDetailScreen() {
         {/* Prompt Templates */}
         {course.templates?.length > 0 && (
           <View style={s.section}>
-            <Text style={s.sectionTitle}>🧪 Prompting Lab</Text>
+            <View style={s.sectionHeading}>
+              <MaterialCommunityIcons name="flask-outline" size={18} color={theme.primary} style={s.sectionIcon} />
+              <Text style={s.sectionTitle}>Prompting Lab</Text>
+            </View>
             {course.templates.map((t, idx) => {
               const key = t._id || String(idx);
               return (
@@ -122,7 +125,10 @@ export default function CourseDetailScreen() {
         {assessments.length > 0 && (
           <View style={s.section}>
             <View style={s.quizHeader}>
-              <Text style={s.sectionTitle}>📝 Knowledge Check</Text>
+              <View style={s.sectionHeading}>
+                <MaterialCommunityIcons name="clipboard-text-outline" size={18} color={theme.primary} style={s.sectionIcon} />
+                <Text style={s.sectionTitle}>Knowledge Check</Text>
+              </View>
               {result?.attempts !== undefined && (
                 <Text style={s.attemptsText}>Attempts: {result.attempts}/3</Text>
               )}
@@ -165,11 +171,22 @@ export default function CourseDetailScreen() {
                 s.resultBanner,
                 result.passed ? s.resultPass : result.locked ? s.resultLocked : s.resultFail
               ]}>
-                <Text style={s.resultTitle}>
-                  {result.passed ? '🎉 Passed!' : result.locked ? '🔒 Locked Out' : '❌ Not quite'}
-                </Text>
+                <View style={s.resultTitleRow}>
+                  <MaterialCommunityIcons
+                    name={result.passed ? 'check-circle-outline' : result.locked ? 'lock-outline' : 'close-circle-outline'}
+                    size={20}
+                    color={result.passed ? theme.success : theme.danger}
+                    style={s.resultIcon}
+                  />
+                  <Text style={s.resultTitle}>{result.passed ? 'Passed!' : result.locked ? 'Locked Out' : 'Not quite'}</Text>
+                </View>
                 <Text style={s.resultMsg}>{result.message} {result.score ? `(${Math.round(result.score)}%)` : ''}</Text>
-                {result.passed && <Text style={s.resultStars}>⭐ Stars earned: {result.stars}</Text>}
+                {result.passed && (
+                  <View style={s.resultStarsRow}>
+                    <MaterialCommunityIcons name="star" size={14} color={theme.accent} style={s.resultIcon} />
+                    <Text style={s.resultStars}>Stars earned: {result.stars}</Text>
+                  </View>
+                )}
               </View>
             )}
 
@@ -211,7 +228,9 @@ const s = StyleSheet.create({
   title: { fontSize: 24, fontWeight: '900', color: theme.text, marginBottom: 8, letterSpacing: -0.5 },
   desc: { fontSize: 14, color: theme.textMuted, lineHeight: 22, marginBottom: 24 },
   section: { marginBottom: 24 },
-  sectionTitle: { fontSize: 16, fontWeight: '900', color: theme.text, marginBottom: 16, letterSpacing: -0.3 },
+  sectionHeading: { flexDirection: 'row', alignItems: 'center', marginBottom: 16 },
+  sectionIcon: { marginRight: 8 },
+  sectionTitle: { fontSize: 16, fontWeight: '900', color: theme.text, letterSpacing: -0.3 },
   templateCard: { backgroundColor: theme.card, borderRadius: 18, borderWidth: 1, borderColor: theme.border, overflow: 'hidden', marginBottom: 12 },
   templateHeader: { flexDirection: 'row', alignItems: 'center', padding: 14, gap: 8, borderBottomWidth: 1, borderBottomColor: theme.border },
   templateIcon: { fontSize: 20 },
@@ -235,9 +254,12 @@ const s = StyleSheet.create({
   resultPass: { backgroundColor: '#f0fdf4', borderColor: theme.success },
   resultFail: { backgroundColor: '#fff5f5', borderColor: theme.danger },
   resultLocked: { backgroundColor: '#f8f8f8', borderColor: '#ccc' },
-  resultTitle: { fontSize: 18, fontWeight: '900', color: theme.text, marginBottom: 4 },
+  resultTitleRow: { flexDirection: 'row', alignItems: 'center', marginBottom: 6 },
+  resultIcon: { marginRight: 10 },
+  resultTitle: { fontSize: 18, fontWeight: '900', color: theme.text },
   resultMsg: { fontSize: 13, color: theme.textMuted, lineHeight: 20 },
-  resultStars: { fontSize: 13, fontWeight: '800', color: theme.accent, marginTop: 6 },
+  resultStarsRow: { flexDirection: 'row', alignItems: 'center', marginTop: 6 },
+  resultStars: { fontSize: 13, fontWeight: '800', color: theme.accent },
   submitBtn: { backgroundColor: theme.primary, borderRadius: 14, paddingVertical: 16, alignItems: 'center', shadowColor: theme.primary, shadowOffset: { width: 0, height: 6 }, shadowOpacity: 0.3, shadowRadius: 12, elevation: 6 },
   submitBtnDim: { opacity: 0.5 },
   submitBtnText: { color: '#fff', fontSize: 15, fontWeight: '900' },

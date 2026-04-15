@@ -4,6 +4,8 @@ import { Loader } from '../components/Loader';
 import { Navbar } from '../components/Navbar';
 import { Hero } from '../components/Hero';
 import { CourseGrid } from '../components/CourseGrid';
+import { motion } from 'framer-motion';
+import { Sparkles, BookOpen, Layers } from 'lucide-react';
 
 const Landing: React.FC = () => {
   const [loading, setLoading] = useState(true);
@@ -19,6 +21,43 @@ const Landing: React.FC = () => {
     <div className="min-h-screen bg-gradient-to-br from-brand-bg via-white to-brand-secondary/5 text-brand-text font-sans selection:bg-brand-primary/30 overflow-x-hidden animate-in fade-in duration-1000">
       <Navbar />
       <Hero />
+
+      <section className="max-w-7xl mx-auto px-4 pb-12 grid gap-6 lg:grid-cols-3">
+        {[
+          {
+            title: 'Prompt Engineering',
+            description: 'Learn how to write AI instructions that are clear, safe, and powerful.',
+            icon: Sparkles,
+          },
+          {
+            title: 'Getting Started',
+            description: 'A simple guide to begin learning with the platform in minutes.',
+            icon: BookOpen,
+          },
+          {
+            title: 'Focused Learning',
+            description: 'Structured activities engineered for Grade 7 learners.',
+            icon: Layers,
+          },
+        ].map((item, index) => {
+          const Icon = item.icon;
+          return (
+            <motion.div
+              key={item.title}
+              initial={{ opacity: 0, y: 16 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.45, delay: index * 0.12 }}
+              className="bg-white/90 border border-brand-primary/10 rounded-[2rem] p-8 shadow-[0_24px_60px_rgba(0,0,0,0.06)] hover:shadow-[0_28px_70px_rgba(0,0,0,0.08)] transition-all"
+            >
+              <div className="w-14 h-14 rounded-3xl bg-brand-primary/10 text-brand-primary grid place-items-center mb-6">
+                <Icon className="w-7 h-7" />
+              </div>
+              <h2 className="text-2xl font-black mb-3 text-brand-text">{item.title}</h2>
+              <p className="text-brand-text/70 leading-relaxed">{item.description}</p>
+            </motion.div>
+          );
+        })}
+      </section>
 
       {/* Cinematic Image Section */}
       <div className="relative max-w-7xl mx-auto px-4 pb-12 group">

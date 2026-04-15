@@ -11,8 +11,9 @@ import ChatPage from './features/User/AI_chatbot/UiPage/ChatPage';
 import ProfilePage from './features/User/home/pages/ProfilePage';
 import AdminDashboard from './features/admin/pages/AdminDashboard';
 import ManageCourses from './features/admin/pages/ManageCourses';
-import UserDirectory from './features/Admin/pages/UserDirectory';
-import PlatformConfig from './features/Admin/pages/PlatformConfig';
+import UserDirectory from './features/admin/pages/UserDirectory';
+import PlatformConfig from './features/admin/pages/PlatformConfig';
+import AdminAuthPage from './features/admin/pages/AdminAuthPage';
 
 /**
  * ProtectedRoute — Redirects to /auth if the user is not logged in.
@@ -32,33 +33,51 @@ const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
 const AdminRoute = ({ children }: { children: React.ReactNode }) => {
   const { user, isLoading } = useAuth();
   if (isLoading) return null;
-  return user?.role === 'admin' ? <>{children}</> : <Navigate to="/home" replace />;
+  if (!user) return <Navigate to="/admin/auth" replace />;
+  return user.role === 'admin' ? <>{children}</> : <Navigate to="/home" replace />;
 };
+
+function AppRoutes() {
+  const { isLoading: isAuthLoading } = useAuth();
+
+  if (isAuthLoading) {
+    return (
+      <div className="min-h-screen bg-brand-bg flex items-center justify-center">
+        <div className="w-8 h-8 border-2 border-brand-primary border-t-transparent rounded-full animate-spin" />
+      </div>
+    );
+  }
+
+  return (
+    <Routes>
+      {/* Public routes */}
+      <Route path="/" element={<LandingPage />} />
+      <Route path="/auth" element={<AuthPage />} />
+      <Route path="/admin/auth" element={<AdminAuthPage />} />
+
+      {/* Protected routes — require login */}
+      <Route path="/home" element={<ProtectedRoute><HomePage /></ProtectedRoute>} />
+      <Route path="/course/:id" element={<ProtectedRoute><CourseDetail /></ProtectedRoute>} />
+      <Route path="/leaderboard" element={<ProtectedRoute><LeaderboardPage /></ProtectedRoute>} />
+      <Route path="/ai-chatbot" element={<ProtectedRoute><ChatPage /></ProtectedRoute>} />
+      <Route path="/profile" element={<ProtectedRoute><ProfilePage /></ProtectedRoute>} />
+
+      {/* Admin routes */}
+      <Route path="/admin" element={<AdminRoute><AdminDashboard /></AdminRoute>} />
+      <Route path="/admin/courses" element={<AdminRoute><ManageCourses /></AdminRoute>} />
+      <Route path="/admin/users" element={<AdminRoute><UserDirectory /></AdminRoute>} />
+      <Route path="/admin/config" element={<AdminRoute><PlatformConfig /></AdminRoute>} />
+
+      {/* Catch-all */}
+      <Route path="*" element={<LandingPage />} />
+    </Routes>
+  );
+}
 
 function App() {
   return (
     <Router>
-      <Routes>
-        {/* Public routes */}
-        <Route path="/" element={<LandingPage />} />
-        <Route path="/auth" element={<AuthPage />} />
-
-        {/* Protected routes — require login */}
-        <Route path="/home" element={<ProtectedRoute><HomePage /></ProtectedRoute>} />
-        <Route path="/course/:id" element={<ProtectedRoute><CourseDetail /></ProtectedRoute>} />
-        <Route path="/leaderboard" element={<ProtectedRoute><LeaderboardPage /></ProtectedRoute>} />
-        <Route path="/ai-chatbot" element={<ProtectedRoute><ChatPage /></ProtectedRoute>} />
-        <Route path="/profile" element={<ProtectedRoute><ProfilePage /></ProtectedRoute>} />
-
-        {/* Admin routes */}
-        <Route path="/admin" element={<AdminRoute><AdminDashboard /></AdminRoute>} />
-        <Route path="/admin/courses" element={<AdminRoute><ManageCourses /></AdminRoute>} />
-        <Route path="/admin/users" element={<AdminRoute><UserDirectory /></AdminRoute>} />
-        <Route path="/admin/config" element={<AdminRoute><PlatformConfig /></AdminRoute>} />
-
-        {/* Catch-all */}
-        <Route path="*" element={<LandingPage />} />
-      </Routes>
+      <AppRoutes />
     </Router>
   );
 }

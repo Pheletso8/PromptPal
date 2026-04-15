@@ -2,21 +2,25 @@ import React from 'react';
 import { NavigationContainer } from '@react-navigation/native';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
-import { Text } from 'react-native';
+import { Text, View, StyleSheet } from 'react-native';
+import { MaterialCommunityIcons } from '@expo/vector-icons';
 import { useAuth } from '../context/AuthContext';
 import { theme } from '../theme';
 
 // Screens
 import AuthScreen from '../screens/AuthScreen';
 import HomeScreen from '../screens/HomeScreen';
+import CoursesScreen from '../screens/CoursesScreen';
 import CourseDetailScreen from '../screens/CourseDetailScreen';
 import LeaderboardScreen from '../screens/LeaderboardScreen';
 import ProfileScreen from '../screens/ProfileScreen';
 import ChatScreen from '../screens/ChatScreen';
 
+
 // ─── Type definitions ──────────────────────────────────────────────────────
 export type AppStackParamList = {
   Home: undefined;
+  Courses: undefined;
   CourseDetail: { id: string; title: string };
 };
 
@@ -38,22 +42,34 @@ function TabNavigator() {
         headerShown: false,
         tabBarActiveTintColor: theme.primary,
         tabBarInactiveTintColor: theme.textMuted,
+        tabBarActiveBackgroundColor: 'rgba(124,58,237,0.12)',
         tabBarStyle: {
-          backgroundColor: '#fff',
-          borderTopColor: theme.border,
-          paddingBottom: 6,
-          paddingTop: 6,
-          height: 62,
+          backgroundColor: 'rgba(255,255,255,0.96)',
+          borderTopColor: 'rgba(124,58,237,0.14)',
+          paddingBottom: 8,
+          paddingTop: 8,
+          height: 68,
+          shadowColor: '#000',
+          shadowOffset: { width: 0, height: -2 },
+          shadowOpacity: 0.06,
+          shadowRadius: 12,
+          elevation: 12,
         },
-        tabBarLabelStyle: { fontSize: 11, fontWeight: '700' },
+        tabBarLabelStyle: { fontSize: 11, fontWeight: '800' },
       }}
     >
       <Tab.Screen
         name="HomeTab"
         component={HomeStackNavigator}
         options={{
-          tabBarLabel: 'Courses',
-          tabBarIcon: ({ color }) => <Text style={{ fontSize: 20, color }}>📚</Text>,
+          tabBarLabel: 'Home',
+          tabBarIcon: ({ focused, color }) => (
+            <MaterialCommunityIcons
+              name={focused ? 'home-circle' : 'home-circle-outline'}
+              size={24}
+              color={color}
+            />
+          ),
         }}
       />
       <Tab.Screen
@@ -61,7 +77,13 @@ function TabNavigator() {
         component={ChatScreen}
         options={{
           tabBarLabel: 'AI Lab',
-          tabBarIcon: ({ color }) => <Text style={{ fontSize: 20, color }}>🚀</Text>,
+          tabBarIcon: ({ focused, color }) => (
+            <MaterialCommunityIcons
+              name={focused ? 'robot' : 'robot-outline'}
+              size={24}
+              color={color}
+            />
+          ),
           headerShown: true,
           headerTitle: 'AI Chat Lab',
           headerStyle: { backgroundColor: '#fff' },
@@ -73,7 +95,13 @@ function TabNavigator() {
         component={LeaderboardScreen}
         options={{
           tabBarLabel: 'Leaderboard',
-          tabBarIcon: ({ color }) => <Text style={{ fontSize: 20, color }}>🏆</Text>,
+          tabBarIcon: ({ focused, color }) => (
+            <MaterialCommunityIcons
+              name={focused ? 'trophy' : 'trophy-outline'}
+              size={24}
+              color={color}
+            />
+          ),
           headerShown: true,
           headerTitle: 'Leaderboard',
           headerStyle: { backgroundColor: '#fff' },
@@ -85,7 +113,13 @@ function TabNavigator() {
         component={ProfileScreen}
         options={{
           tabBarLabel: 'Profile',
-          tabBarIcon: ({ color }) => <Text style={{ fontSize: 20, color }}>👤</Text>,
+          tabBarIcon: ({ focused, color }) => (
+            <MaterialCommunityIcons
+              name={focused ? 'account-circle' : 'account-circle-outline'}
+              size={24}
+              color={color}
+            />
+          ),
           headerShown: true,
           headerTitle: 'My Profile',
           headerStyle: { backgroundColor: '#fff' },
@@ -111,6 +145,16 @@ function HomeStackNavigator() {
         }}
       />
       <Stack.Screen
+        name="Courses"
+        component={CoursesScreen}
+        options={{
+          title: 'Courses',
+          headerStyle: { backgroundColor: '#fff' },
+          headerTitleStyle: { fontWeight: '900', color: theme.text, fontSize: 20 },
+          headerShadowVisible: false,
+        }}
+      />
+      <Stack.Screen
         name="CourseDetail"
         component={CourseDetailScreen}
         options={({ route }) => ({
@@ -127,9 +171,9 @@ function HomeStackNavigator() {
 
 // ─── Root Navigator ────────────────────────────────────────────────────────
 export default function AppNavigator() {
-  const { user, isLoading } = useAuth();
+  const { user, isLoading: isAuthLoading } = useAuth();
 
-  if (isLoading) return null;
+  if (isAuthLoading) return null;
 
   return (
     <NavigationContainer>

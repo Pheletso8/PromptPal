@@ -109,6 +109,14 @@ export const api = {
       body: JSON.stringify({ email, password }),
     }).then(res => handleRes<AuthUser>(res)),
 
+  /** Authenticate a staff/admin user separately */
+  loginStaff: (email: string, password: string) =>
+    fetch(`${BASE}/auth/staff`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ email, password }),
+    }).then(res => handleRes<AuthUser>(res)),
+
   /** Fetch the current user's profile (uses stored token) */
   getProfile: () =>
     fetch(`${BASE}/auth/profile`, { headers: authHeaders() })
@@ -174,6 +182,14 @@ export const api = {
       body: JSON.stringify({ userId, courseId }),
     }).then(res => handleRes<any>(res)),
 
+  /** Unassign course from user (Admin only) */
+  unassignCourseFromUser: (userId: string, courseId: string) =>
+    fetch(`${BASE}/admin/unassign-course`, {
+      method: 'POST',
+      headers: authHeaders(),
+      body: JSON.stringify({ userId, courseId }),
+    }).then(res => handleRes<any>(res)),
+
   // ── Admin ───────────────────────────────────────────────────────────────────
 
   /** Get stats for the admin dashboard */
@@ -181,10 +197,6 @@ export const api = {
     fetch(`${BASE}/admin/stats`, { headers: authHeaders() })
       .then(res => handleRes<any>(res)),
 
-  /** Get all users (Admin only) */
-  getAllUsers: () =>
-    fetch(`${BASE}/admin/users`, { headers: authHeaders() })
-      .then(res => handleRes<any[]>(res)),
 
   /** Toggle user status (Admin only) */
   adminToggleUserStatus: (id: string) =>
@@ -232,6 +244,11 @@ export const api = {
   /** Get platform config */
   getConfig: () =>
     fetch(`${BASE}/config`, { headers: authHeaders() })
+      .then(res => handleRes<any>(res)),
+
+  /** Get public platform settings */
+  getPublicConfig: () =>
+    fetch(`${BASE}/config/public`)
       .then(res => handleRes<any>(res)),
 
   /** Update platform config */

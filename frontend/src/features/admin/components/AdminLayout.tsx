@@ -2,7 +2,7 @@ import React from 'react';
 import { NavLink, useNavigate } from 'react-router-dom';
 import { 
   LayoutDashboard, Users, BookOpen, Settings,
-  LogOut, ChevronLeft
+  LogOut
 } from 'lucide-react';
 import { useAuth } from '../../../context/AuthContext';
 

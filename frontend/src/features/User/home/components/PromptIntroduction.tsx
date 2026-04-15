@@ -1,3 +1,6 @@
+import { motion } from 'framer-motion';
+import { Sparkles, Search, BookOpen } from 'lucide-react';
+
 export const PromptIntroduction = () => (
   <section className="mb-16 p-8 rounded-[2.5rem] border border-gray-100 bg-white shadow-[0_4px_30px_rgb(0,0,0,0.03)] relative overflow-hidden group">
     {/* Decorative Background Glow */}
@@ -34,27 +37,27 @@ export const PromptIntroduction = () => (
         <div className="p-8 rounded-[2rem] border border-brand-primary/5 bg-gradient-to-br from-brand-bg to-white backdrop-blur-md max-w-xs shadow-sm">
           <h4 className="text-brand-primary font-bold text-xs uppercase mb-6 tracking-widest underline decoration-brand-primary/30 text-center">Your New Superpower</h4>
           <ul className="space-y-4 text-xs font-medium text-brand-text/80">
-            <li className="flex items-start gap-3 group/item">
-              <span className="text-xl transition-transform group-hover/item:scale-125">🎓</span>
+            <motion.li className="flex items-start gap-3 group/item" initial={{ opacity: 0, x: -10 }} animate={{ opacity: 1, x: 0 }} transition={{ duration: 0.35 }}>
+              <span className="text-brand-primary mt-1"><Sparkles className="w-6 h-6" /></span>
               <div>
                 <span className="block text-brand-text font-bold mb-0.5">Personal Tutor</span>
                 <span className="text-brand-text/60">It explains tough homework, like a hard Math problem, so it's easy to understand.</span>
               </div>
-            </li>
-            <li className="flex items-start gap-3 group/item">
-              <span className="text-xl transition-transform group-hover/item:scale-125">🔍</span>
+            </motion.li>
+            <motion.li className="flex items-start gap-3 group/item" initial={{ opacity: 0, x: -10 }} animate={{ opacity: 1, x: 0 }} transition={{ duration: 0.35, delay: 0.08 }}>
+              <span className="text-brand-primary mt-1"><Search className="w-6 h-6" /></span>
               <div>
                 <span className="block text-brand-text font-bold mb-0.5">Research Assistant</span>
                 <span className="text-brand-text/60">It helps you find info for class projects much faster than searching big books.</span>
               </div>
-            </li>
-            <li className="flex items-start gap-3 group/item">
-              <span className="text-xl transition-transform group-hover/item:scale-125">✨</span>
+            </motion.li>
+            <motion.li className="flex items-start gap-3 group/item" initial={{ opacity: 0, x: -10 }} animate={{ opacity: 1, x: 0 }} transition={{ duration: 0.35, delay: 0.16 }}>
+              <span className="text-brand-primary mt-1"><BookOpen className="w-6 h-6" /></span>
               <div>
                 <span className="block text-brand-text font-bold mb-0.5">Creative Spark</span>
                 <span className="text-brand-text/60">It helps you come up with new ideas for stories, drawings, or experiments.</span>
               </div>
-            </li>
+            </motion.li>
           </ul>
         </div>
       </div>

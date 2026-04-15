@@ -6,6 +6,7 @@ import {
 import { useAuth } from '../context/AuthContext';
 import { api } from '../utils/api';
 import { theme } from '../theme';
+import { MaterialCommunityIcons } from '@expo/vector-icons';
 
 export default function ProfileScreen() {
   const { user, logout, refreshUser } = useAuth();
@@ -43,7 +44,8 @@ export default function ProfileScreen() {
 
   return (
     <ScrollView style={s.root} contentContainerStyle={{ paddingBottom: 40 }}>
-      {/* Avatar */}
+      <View style={s.bgAccentTop} />
+      <View style={s.bgAccentCircle} />
       <View style={s.avatarSection}>
         <View style={s.avatarWrap}>
           {user?.profileImage
@@ -57,13 +59,13 @@ export default function ProfileScreen() {
         {/* Stats row */}
         <View style={s.statsRow}>
           <View style={s.statCard}>
-            <Text style={s.statEmoji}>⭐</Text>
+            <MaterialCommunityIcons name="star" size={20} color={theme.primary} style={s.statIcon} />
             <Text style={s.statVal}>{user?.stars || 0}</Text>
             <Text style={s.statLabel}>Stars</Text>
           </View>
           <View style={s.statDivider} />
           <View style={s.statCard}>
-            <Text style={s.statEmoji}>✅</Text>
+            <MaterialCommunityIcons name="checkbox-marked-circle-outline" size={20} color={theme.success} style={s.statIcon} />
             <Text style={[s.statVal, { color: theme.success }]}>{user?.assessmentsPassed || 0}</Text>
             <Text style={s.statLabel}>Passed</Text>
           </View>
@@ -117,17 +119,35 @@ export default function ProfileScreen() {
         onPress={handleLogout}
         disabled={loggingOut}
       >
-        <Text style={s.logoutText}>{loggingOut ? 'Signing out…' : '🚪 Sign Out'}</Text>
+        <View style={s.logoutContent}>
+          <MaterialCommunityIcons name="logout" size={18} color={theme.danger} style={s.logoutIcon} />
+          <Text style={s.logoutText}>{loggingOut ? 'Signing out…' : 'Sign Out'}</Text>
+        </View>
       </TouchableOpacity>
     </ScrollView>
   );
 }
 
 const s = StyleSheet.create({
-  root: { flex: 1, backgroundColor: theme.bg },
+  root: { flex: 1, backgroundColor: theme.profileBg, position: 'relative' },
+  bgAccentTop: {
+    position: 'absolute', top: -60, left: -50,
+    width: 180, height: 180, borderRadius: 90,
+    backgroundColor: 'rgba(124,58,237,0.14)',
+  },
+  bgAccentCircle: {
+    position: 'absolute', top: 120, right: -70,
+    width: 140, height: 140, borderRadius: 70,
+    backgroundColor: 'rgba(59,130,246,0.12)',
+  },
   avatarSection: {
     alignItems: 'center', paddingTop: 36, paddingBottom: 28,
-    backgroundColor: theme.card, borderBottomWidth: 1, borderBottomColor: theme.border,
+    backgroundColor: theme.card,
+    borderBottomWidth: 1,
+    borderBottomColor: theme.borderSoft,
+    borderRadius: 32,
+    margin: 16,
+    paddingHorizontal: 20,
   },
   avatarWrap: {
     width: 88, height: 88, borderRadius: 44, overflow: 'hidden',
@@ -145,10 +165,23 @@ const s = StyleSheet.create({
   },
   statCard: { alignItems: 'center', flex: 1 },
   statDivider: { width: 1, backgroundColor: theme.border, marginHorizontal: 16 },
-  statEmoji: { fontSize: 22, marginBottom: 4 },
+  statIcon: { marginBottom: 6 },
   statVal: { fontSize: 22, fontWeight: '900', color: theme.primary },
   statLabel: { fontSize: 11, color: theme.textMuted, marginTop: 2, fontWeight: '600' },
-  card: { margin: 16, backgroundColor: theme.card, borderRadius: 24, padding: 20, borderWidth: 1, borderColor: theme.border },
+  card: {
+    marginHorizontal: 16,
+    marginTop: 20,
+    backgroundColor: theme.card,
+    borderRadius: 24,
+    padding: 20,
+    borderWidth: 1,
+    borderColor: theme.borderSoft,
+    shadowColor: theme.shadow.shadowColor,
+    shadowOffset: theme.shadow.shadowOffset,
+    shadowOpacity: theme.shadow.shadowOpacity,
+    shadowRadius: theme.shadow.shadowRadius,
+    elevation: theme.shadow.elevation,
+  },
   cardTitle: { fontSize: 16, fontWeight: '900', color: theme.text, marginBottom: 20, letterSpacing: -0.3 },
   message: { borderRadius: 12, padding: 12, marginBottom: 16, borderWidth: 1 },
   messageSuccess: { backgroundColor: '#f0fdf4', borderColor: theme.success },
@@ -174,5 +207,7 @@ const s = StyleSheet.create({
     borderRadius: 16, alignItems: 'center',
     borderWidth: 1.5, borderColor: '#fecaca',
   },
+  logoutContent: { flexDirection: 'row', alignItems: 'center', gap: 8 },
+  logoutIcon: { marginTop: 1 },
   logoutText: { color: theme.danger, fontSize: 15, fontWeight: '800' },
 });

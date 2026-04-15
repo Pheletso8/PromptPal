@@ -1,6 +1,31 @@
 import * as SecureStore from 'expo-secure-store';
 
-const BASE = (process.env.EXPO_PUBLIC_API_URL || '').replace(/\/$/, '') + '/api';
+const LOCAL_BASE = (process.env.EXPO_PUBLIC_LOCAL_API_URL || '').replace(/\/$/, '') + '/api';
+const REMOTE_BASE = (process.env.EXPO_PUBLIC_REMOTE_API_URL || '').replace(/\/$/, '') + '/api';
+
+export let BASE = LOCAL_BASE;
+let initPromise: Promise<void> | null = null;
+
+export const initApi = async () => {
+  if (initPromise) return initPromise;
+  
+  initPromise = (async () => {
+    try {
+      const controller = new AbortController();
+      const id = setTimeout(() => controller.abort(), 2000);
+      const res = await fetch(`${LOCAL_BASE}/status`, { signal: controller.signal });
+      clearTimeout(id);
+      if (!res.ok) throw new Error();
+      BASE = LOCAL_BASE;
+      console.log('[API] Using LOCAL backend:', BASE);
+    } catch (e) {
+      BASE = REMOTE_BASE;
+      console.log('[API] Using REMOTE backend (fallback):', BASE);
+    }
+  })();
+  
+  return initPromise;
+};
 
 const TOKEN_KEY = 'promptpal_token';
 
@@ -19,7 +44,9 @@ const authHeaders = async () => {
 async function handleRes<T>(res: Response): Promise<T> {
   if (!res.ok) {
     const body = await res.json().catch(() => ({}));
-    throw new Error(body.message || `HTTP ${res.status}`);
+    const errMsg = body.message || `HTTP ${res.status}`;
+    console.error(`[API Error] ${res.url}: ${errMsg}`);
+    throw new Error(errMsg);
   }
   return res.json() as Promise<T>;
 }
@@ -74,6 +101,7 @@ export interface AssessmentResult {
 
 export const api = {
   login: async (email: string, password: string): Promise<AuthUser> => {
+    await initApi();
     const res = await fetch(`${BASE}/auth/login`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
@@ -83,6 +111,7 @@ export const api = {
   },
 
   register: async (name: string, email: string, password: string): Promise<AuthUser> => {
+    await initApi();
     const res = await fetch(`${BASE}/auth/register`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
@@ -92,12 +121,20 @@ export const api = {
   },
 
   getProfile: async (): Promise<AuthUser> => {
+    await initApi();
     const headers = await authHeaders();
-    const res = await fetch(`${BASE}/auth/me`, { headers });
+    const res = await fetch(`${BASE}/auth/profile`, { headers });
     return handleRes<AuthUser>(res);
   },
 
+  getPublicConfig: async (): Promise<any> => {
+    await initApi();
+    const res = await fetch(`${BASE}/config/public`);
+    return handleRes<any>(res);
+  },
+
   updateProfile: async (data: Partial<AuthUser>): Promise<AuthUser> => {
+    await initApi();
     const headers = await authHeaders();
     const res = await fetch(`${BASE}/auth/profile`, {
       method: 'PUT', headers, body: JSON.stringify(data),
@@ -106,18 +143,21 @@ export const api = {
   },
 
   getAssignedCourses: async (): Promise<Course[]> => {
+    await initApi();
     const headers = await authHeaders();
-    const res = await fetch(`${BASE}/courses/assigned`, { headers });
+    const res = await fetch(`${BASE}/courses/my-courses`, { headers });
     return handleRes<Course[]>(res);
   },
 
   getCourseById: async (id: string): Promise<Course> => {
+    await initApi();
     const headers = await authHeaders();
     const res = await fetch(`${BASE}/courses/${id}`, { headers });
     return handleRes<Course>(res);
   },
 
   submitAssessment: async (courseId: string, answers: string[]): Promise<AssessmentResult> => {
+    await initApi();
     const headers = await authHeaders();
     const res = await fetch(`${BASE}/assessments/submit`, {
       method: 'POST', headers, body: JSON.stringify({ courseId, answers }),
@@ -126,6 +166,7 @@ export const api = {
   },
 
   getLeaderboard: async (): Promise<any[]> => {
+    await initApi();
     const headers = await authHeaders();
     const res = await fetch(`${BASE}/leaderboard`, { headers });
     return handleRes<any[]>(res);

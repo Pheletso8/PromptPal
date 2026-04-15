@@ -34,8 +34,34 @@ export const assignCourse = async (req: AuthRequest, res: Response): Promise<voi
     user.assignedCourses.push(courseId);
     await user.save();
 
+    console.log(`[ADMIN] Assigned course ${courseId} to user ${userId}`);
     res.status(200).json({ message: 'Course assigned successfully', assignedCourses: user.assignedCourses });
   } catch (error) {
+    console.error('[ADMIN] Assign course error:', error);
+    res.status(500).json({ message: 'Server error' });
+  }
+};
+
+// @desc    Unassign course from user
+// @route   DELETE /api/admin/unassign-course
+// @access  Private/Admin
+export const unassignCourse = async (req: AuthRequest, res: Response): Promise<void> => {
+  try {
+    const { userId, courseId } = req.body;
+
+    const user = await User.findById(userId);
+    if (!user) {
+      res.status(404).json({ message: 'User not found' });
+      return;
+    }
+
+    user.assignedCourses = user.assignedCourses.filter(id => id.toString() !== courseId);
+    await user.save();
+
+    console.log(`[ADMIN] Unassigned course ${courseId} from user ${userId}`);
+    res.status(200).json({ message: 'Course unassigned successfully', assignedCourses: user.assignedCourses });
+  } catch (error) {
+    console.error('[ADMIN] Unassign course error:', error);
     res.status(500).json({ message: 'Server error' });
   }
 };
@@ -197,9 +223,15 @@ export const getDashboardStats = async (req: AuthRequest, res: Response): Promis
 // @access  Private/Admin
 export const getAllUsers = async (req: AuthRequest, res: Response): Promise<void> => {
   try {
-    const users = await User.find({ role: 'user' }).select('-password');
+    console.log(`[ADMIN] ${req.user.email} fetching users...`);
+    const users = await User.find({ role: 'user' })
+      .select('-password')
+      .populate('assignedCourses', 'title tag');
+    
+    console.log(`[ADMIN] Found ${users.length} users`);
     res.json(users);
   } catch (error) {
+    console.error('[ADMIN] Fetch users error:', error);
     res.status(500).json({ message: 'Server error' });
   }
 };

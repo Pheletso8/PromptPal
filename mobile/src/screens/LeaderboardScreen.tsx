@@ -6,6 +6,7 @@ import {
 import { api } from '../utils/api';
 import { useAuth } from '../context/AuthContext';
 import { theme } from '../theme';
+import { MaterialCommunityIcons } from '@expo/vector-icons';
 
 export default function LeaderboardScreen() {
   const { user } = useAuth();
@@ -27,15 +28,27 @@ export default function LeaderboardScreen() {
 
   useEffect(() => { fetchData(); }, []);
 
-  const medals = ['🥇', '🥈', '🥉'];
+  const topRankIcons = [
+    { name: 'medal', color: '#facc15' },
+    { name: 'trophy', color: '#9ca3af' },
+    { name: 'podium', color: '#fb923c' },
+  ];
 
   const renderRow = ({ item, index }: { item: any; index: number }) => {
     const isMe = item._id === user?._id;
     return (
       <View style={[s.row, isMe && s.rowMe]}>
-        <Text style={s.rank}>
-          {index < 3 ? medals[index] : `#${index + 1}`}
-        </Text>
+        <View style={s.rankIconWrap}>
+          {index < 3 ? (
+            <MaterialCommunityIcons
+              name={topRankIcons[index].name}
+              size={22}
+              color={topRankIcons[index].color}
+            />
+          ) : (
+            <Text style={s.rank}>#{index + 1}</Text>
+          )}
+        </View>
         <View style={s.avatar}>
           {item.profileImage
             ? <Image source={{ uri: item.profileImage }} style={s.avatarImg} />
@@ -47,7 +60,8 @@ export default function LeaderboardScreen() {
           <Text style={s.passedText}>{item.assessmentsPassed || 0} passed</Text>
         </View>
         <View style={s.starsBadge}>
-          <Text style={s.starsText}>⭐ {item.stars || 0}</Text>
+          <MaterialCommunityIcons name="star" size={14} color="#b45309" style={s.starsIcon} />
+          <Text style={s.starsText}>{item.stars || 0}</Text>
         </View>
       </View>
     );
@@ -66,8 +80,12 @@ export default function LeaderboardScreen() {
 
   return (
     <View style={s.root}>
+      <View style={s.bgAccent} />
       <View style={s.header}>
-        <Text style={s.headerTitle}>🏆 Leaderboard</Text>
+        <View style={s.headerTitleRow}>
+          <MaterialCommunityIcons name="trophy-outline" size={22} color={theme.primary} style={s.headerTitleIcon} />
+          <Text style={s.headerTitle}>Leaderboard</Text>
+        </View>
         <Text style={s.headerSub}>Top students on PromptPal</Text>
       </View>
 
@@ -94,19 +112,41 @@ export default function LeaderboardScreen() {
 }
 
 const s = StyleSheet.create({
-  root: { flex: 1, backgroundColor: theme.bg },
+  root: { flex: 1, backgroundColor: theme.leaderboardBg, position: 'relative' },
+  bgAccent: {
+    position: 'absolute', top: -80, right: -60,
+    width: 220, height: 220, borderRadius: 120,
+    backgroundColor: 'rgba(245,158,11,0.16)',
+  },
   header: {
-    paddingHorizontal: 20, paddingTop: 20, paddingBottom: 16,
-    backgroundColor: theme.card, borderBottomWidth: 1, borderBottomColor: theme.border,
+    margin: 16,
+    padding: 20,
+    borderRadius: 24,
+    backgroundColor: theme.card,
+    borderWidth: 1,
+    borderColor: theme.borderSoft,
+    shadowColor: theme.shadow.shadowColor,
+    shadowOffset: theme.shadow.shadowOffset,
+    shadowOpacity: theme.shadow.shadowOpacity,
+    shadowRadius: theme.shadow.shadowRadius,
+    elevation: theme.shadow.elevation,
   },
   headerTitle: { fontSize: 22, fontWeight: '900', color: theme.text, letterSpacing: -0.5 },
   headerSub: { fontSize: 13, color: theme.textMuted, marginTop: 2 },
   row: {
     flexDirection: 'row', alignItems: 'center', gap: 12,
-    backgroundColor: theme.card, borderRadius: 16, padding: 14,
-    borderWidth: 1, borderColor: theme.border,
+    backgroundColor: theme.card,
+    borderRadius: 18,
+    padding: 16,
+    borderWidth: 1,
+    borderColor: theme.borderSoft,
+    shadowColor: theme.shadow.shadowColor,
+    shadowOffset: theme.shadow.shadowOffset,
+    shadowOpacity: theme.shadow.shadowOpacity,
+    shadowRadius: theme.shadow.shadowRadius,
+    elevation: theme.shadow.elevation,
   },
-  rowMe: { borderColor: theme.primary, backgroundColor: theme.secondary },
+  rowMe: { borderColor: theme.primary, backgroundColor: 'rgba(124,58,237,0.12)' },
   rank: { fontSize: 18, width: 32, textAlign: 'center' },
   avatar: {
     width: 44, height: 44, borderRadius: 22,
@@ -119,9 +159,13 @@ const s = StyleSheet.create({
   name: { fontSize: 14, fontWeight: '800', color: theme.text },
   passedText: { fontSize: 11, color: theme.textMuted, marginTop: 2 },
   starsBadge: {
-    backgroundColor: '#fef3c7', borderRadius: 20, paddingHorizontal: 10, paddingVertical: 5,
+    flexDirection: 'row', alignItems: 'center', backgroundColor: '#fef3c7', borderRadius: 20, paddingHorizontal: 10, paddingVertical: 5,
     borderWidth: 1, borderColor: '#fde68a',
   },
+  starsIcon: { marginRight: 6 },
+  rankIconWrap: { width: 32, alignItems: 'center', justifyContent: 'center' },
+  headerTitleRow: { flexDirection: 'row', alignItems: 'center', marginBottom: 8 },
+  headerTitleIcon: { marginRight: 8 },
   starsText: { fontSize: 13, fontWeight: '800', color: '#b45309' },
   empty: { alignItems: 'center', paddingTop: 60 },
   emptyText: { fontSize: 16, fontWeight: '700', color: theme.textMuted },

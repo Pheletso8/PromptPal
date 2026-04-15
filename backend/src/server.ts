@@ -14,12 +14,30 @@ dotenv.config();
 const app = express();
 const PORT = process.env.PORT || 5000;
 
-// Middleware
+// 1. Body Parsers (FIRST)
+app.use(express.json({ limit: '50mb' }));
+app.use(express.urlencoded({ limit: '50mb', extended: true }));
+
+// 2. Size Logging (For Debugging)
+app.use((req, res, next) => {
+  const size = req.get('content-length');
+  if (size) {
+    console.log(`[PAYLOAD] ${req.method} ${req.url} - Size: ${(parseInt(size) / (1024 * 1024)).toFixed(2)} MB`);
+  }
+  next();
+});
+
+// 3. CORS
 app.use(cors({
-  origin: ['http://localhost:5173', 'https://prompt-pal-six.vercel.app'],
+  origin: '*',
   credentials: true
 }));
-app.use(express.json());
+
+// 4. Request logger
+app.use((req, res, next) => {
+  console.log(`[${new Date().toISOString()}] ${req.method} ${req.url}`);
+  next();
+});
 
 // Routes
 app.use('/api/auth', authRoutes);
@@ -40,7 +58,7 @@ app.get('/api/status', (req, res) => {
 });
 
 // Start Server
-app.listen(PORT, () => {
+app.listen(PORT as number, '0.0.0.0', () => {
   console.log(`Server is running on port ${PORT}`);
 
   // Database Connection (asynchronous)

@@ -15,6 +15,7 @@ import StatsWidgets from '../components/StatsWidgets';
 import { PromptIntroduction } from '../components/PromptIntroduction';
 import { VideoPlayer } from '../../chapters/components/VideoPlayer';
 import { api, type Course } from '../../../../utils/api';
+import { MessageSquare, Search } from 'lucide-react';
 
 const TAGS = ['All', 'Maths', 'Research', 'Science', 'EMS', 'English'];
 
@@ -46,9 +47,9 @@ const HomePage: React.FC = () => {
       {/* Floating AI Lab CTA */}
       <Link
         to="/ai-chatbot"
-        className="fixed bottom-8 right-8 z-50 group flex items-center gap-3 bg-brand-primary hover:bg-brand-secondary text-white px-8 py-4 rounded-full font-bold shadow-[0_8px_30px_rgb(107,33,168,0.3)] transition-all hover:-translate-y-1 active:scale-95 border border-white/20"
+        className="fixed bottom-8 right-8 z-50 group flex items-center gap-3 bg-brand-primary hover:bg-brand-secondary text-white px-6 py-4 rounded-full font-bold shadow-[0_8px_30px_rgb(107,33,168,0.3)] transition-all hover:-translate-y-1 active:scale-95 border border-white/20"
       >
-        <span className="text-2xl drop-shadow-md group-hover:scale-110 transition-transform">🤖</span>
+        <MessageSquare className="w-5 h-5" />
         <span className="hidden md:block uppercase tracking-wider text-sm">Open AI Lab</span>
       </Link>
 
@@ -83,7 +84,9 @@ const HomePage: React.FC = () => {
                 value={search}
                 onChange={e => setSearch(e.target.value)}
               />
-              <span className="absolute left-4 top-1/2 -translate-y-1/2 opacity-40 text-xl grayscale contrast-200">🔍</span>
+              <span className="absolute left-4 top-1/2 -translate-y-1/2 opacity-40 text-xl grayscale contrast-200">
+                <Search className="w-5 h-5" />
+              </span>
             </div>
             <div className="flex items-center space-x-3 overflow-x-auto pb-2 scrollbar-hide px-1">
               {TAGS.map(tag => (

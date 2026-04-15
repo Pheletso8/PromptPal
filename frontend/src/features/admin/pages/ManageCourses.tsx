@@ -6,7 +6,6 @@ import {
   Plus, Edit2, Trash2, Save, X, Image as ImageIcon, 
   Type, Loader2, Users
 } from 'lucide-react';
-import { useNavigate } from 'react-router-dom';
 
 const CourseSkeleton = () => (
   <div className="bg-white border border-brand-primary/10 rounded-3xl overflow-hidden flex flex-col shadow-sm">
@@ -44,7 +43,7 @@ const ManageCourses = () => {
   const [selectedUserIds, setSelectedUserIds] = useState<string[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const navigate = useNavigate();
+
 
   useEffect(() => {
     fetchData();
@@ -54,7 +53,7 @@ const ManageCourses = () => {
     try {
       const [coursesData, usersData] = await Promise.all([
         api.getAllCourses(),
-        fetch('/api/users', { headers: { 'Authorization': `Bearer ${localStorage.getItem('token')}` } }).then(res => res.json()).catch(() => [])
+        api.getAllUsers()
       ]);
       setCourses(coursesData);
       setUsers(Array.isArray(usersData) ? usersData : []);

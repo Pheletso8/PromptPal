@@ -5,20 +5,36 @@ import { Trash2, Power, Edit3, Plus, Mail, X, Save } from 'lucide-react';
 
 const UserDirectory = () => {
   const [users, setUsers] = useState<any[]>([]);
+  const [courses, setCourses] = useState<any[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [editUser, setEditUser] = useState<any>(null);
+  const [isAddingUser, setIsAddingUser] = useState(false);
+  const [newUser, setNewUser] = useState({ name: '', email: '', password: '', role: 'user' });
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [isAssigning, setIsAssigning] = useState(false);
 
   useEffect(() => {
     fetchUsers();
+    fetchCourses();
   }, []);
+
+  const fetchCourses = async () => {
+    try {
+      const data = await api.getAllCourses();
+      setCourses(data);
+    } catch (error) {
+      console.error('Failed to fetch courses:', error);
+    }
+  };
 
   const fetchUsers = async () => {
     try {
+      setIsLoading(true);
       const data = await api.getAllUsers();
       setUsers(data);
-    } catch (error) {
+    } catch (error: any) {
       console.error('Failed to fetch users:', error);
+      alert(`⚠️ Admin Access Error: ${error.message || 'Unknown error'}\n\nPlease ensure you are logged in as an administrator.`);
     } finally {
       setIsLoading(false);
     }
@@ -52,12 +68,44 @@ const UserDirectory = () => {
         name: editUser.name,
         email: editUser.email
       });
-      setUsers(users.map(u => u._id === updated._id ? updated : u));
+      setUsers(users.map(u => u._id === updated._id ? { ...u, ...updated } : u));
       setEditUser(null);
     } catch (error) {
       alert("Failed to update user");
     } finally {
       setIsSubmitting(false);
+    }
+  };
+
+  const handleAssignCourse = async (courseId: string) => {
+    if (isAssigning) return;
+    setIsAssigning(true);
+    try {
+      await api.assignCourseToUser(editUser._id, courseId);
+      const updatedUsers = await api.getAllUsers(); // Refresh to get populated courses
+      setUsers(updatedUsers);
+      const freshUser = updatedUsers.find(u => u._id === editUser._id);
+      setEditUser(freshUser);
+    } catch (error: any) {
+      alert(error.message || "Failed to assign course");
+    } finally {
+      setIsAssigning(false);
+    }
+  };
+
+  const handleUnassignCourse = async (courseId: string) => {
+    if (isAssigning) return;
+    setIsAssigning(true);
+    try {
+      await api.unassignCourseFromUser(editUser._id, courseId);
+      const updatedUsers = await api.getAllUsers();
+      setUsers(updatedUsers);
+      const freshUser = updatedUsers.find(u => u._id === editUser._id);
+      setEditUser(freshUser);
+    } catch (error: any) {
+      alert(error.message || "Failed to unassign course");
+    } finally {
+      setIsAssigning(false);
     }
   };
 
@@ -89,9 +137,15 @@ const UserDirectory = () => {
           />
           <Mail className="w-6 h-6 text-brand-text/30 absolute left-6 top-1/2 -translate-y-1/2" />
         </div>
-        <button className="px-8 py-4 bg-brand-primary hover:opacity-90 text-white rounded-2xl transition-all flex items-center gap-3 font-black italic uppercase tracking-widest shadow-xl shadow-brand-primary/20">
+        <button 
+          onClick={() => {
+            setNewUser({ name: '', email: '', password: '', role: 'user' });
+            setIsAddingUser(true);
+          }}
+          className="px-8 py-4 bg-brand-primary hover:opacity-90 text-white rounded-2xl transition-all flex items-center gap-3 font-black italic uppercase tracking-widest shadow-xl shadow-brand-primary/20"
+        >
           <Plus className="w-5 h-5" />
-          Add Staff
+          Add Student
         </button>
       </div>
 
@@ -177,17 +231,100 @@ const UserDirectory = () => {
               <button onClick={() => setEditUser(null)} className="p-2 hover:bg-white rounded-full transition-colors"><X className="w-6 h-6 text-brand-text/40" /></button>
             </div>
             <form onSubmit={submitEdit} className="p-8 space-y-6">
-              <div className="space-y-2">
-                <label className="text-[10px] font-black uppercase tracking-[0.2em] text-brand-text/40 px-1">Full Name</label>
-                <input required value={editUser.name} onChange={(e) => setEditUser({...editUser, name: e.target.value})} className="w-full bg-brand-secondary/5 border border-brand-primary/10 rounded-xl px-4 py-3 outline-none focus:border-brand-primary/50 text-brand-text font-bold" />
+              <div className="space-y-4">
+                <div className="space-y-2">
+                  <label className="text-[10px] font-black uppercase tracking-[0.2em] text-brand-text/40 px-1">Full Name</label>
+                  <input required value={editUser.name} onChange={(e) => setEditUser({...editUser, name: e.target.value})} className="w-full bg-brand-secondary/5 border border-brand-primary/10 rounded-xl px-4 py-3 outline-none focus:border-brand-primary/50 text-brand-text font-bold" />
+                </div>
+                <div className="space-y-2">
+                  <label className="text-[10px] font-black uppercase tracking-[0.2em] text-brand-text/40 px-1">Email Details</label>
+                  <input required type="email" value={editUser.email} onChange={(e) => setEditUser({...editUser, email: e.target.value})} className="w-full bg-brand-secondary/5 border border-brand-primary/10 rounded-xl px-4 py-3 outline-none focus:border-brand-primary/50 text-brand-text font-bold" />
+                </div>
               </div>
-              <div className="space-y-2">
-                <label className="text-[10px] font-black uppercase tracking-[0.2em] text-brand-text/40 px-1">Email Details</label>
-                <input required type="email" value={editUser.email} onChange={(e) => setEditUser({...editUser, email: e.target.value})} className="w-full bg-brand-secondary/5 border border-brand-primary/10 rounded-xl px-4 py-3 outline-none focus:border-brand-primary/50 text-brand-text font-bold" />
+
+              {/* Course Assignment Section */}
+              <div className="pt-6 border-t border-brand-primary/5">
+                <label className="text-[10px] font-black uppercase tracking-[0.2em] text-brand-text/40 px-1 mb-4 block">Course Management</label>
+                
+                <div className="space-y-3 mb-6">
+                  {editUser.assignedCourses?.length > 0 ? (
+                    editUser.assignedCourses.map((c: any) => (
+                      <div key={c._id} className="flex items-center justify-between bg-brand-primary/5 rounded-xl px-4 py-2 border border-brand-primary/10">
+                        <span className="text-xs font-bold text-brand-text">{c.title}</span>
+                        <button type="button" onClick={() => handleUnassignCourse(c._id)} className="p-1 hover:bg-white rounded-md text-red-500 transition-colors">
+                          <X className="w-4 h-4" />
+                        </button>
+                      </div>
+                    ))
+                  ) : (
+                    <p className="text-[10px] italic text-brand-text/30 px-1">No courses assigned yet.</p>
+                  )}
+                </div>
+
+                <div className="space-y-2">
+                  <label className="text-[10px] font-black uppercase tracking-[0.2em] text-brand-text/40 px-1">Assign New Course</label>
+                  <select 
+                    className="w-full bg-brand-secondary/5 border border-brand-primary/10 rounded-xl px-4 py-3 outline-none focus:border-brand-primary/50 text-brand-text font-bold text-sm"
+                    onChange={(e) => e.target.value && handleAssignCourse(e.target.value)}
+                    value=""
+                  >
+                    <option value="">Select a course...</option>
+                    {courses
+                      .filter(c => !editUser.assignedCourses?.some((ac: any) => ac._id === c._id))
+                      .map(course => (
+                        <option key={course._id} value={course._id}>{course.title}</option>
+                      ))
+                    }
+                  </select>
+                </div>
               </div>
+
               <div className="pt-4 flex justify-end">
                 <button type="submit" disabled={isSubmitting} className="px-8 py-4 bg-brand-primary hover:opacity-90 disabled:opacity-50 text-white rounded-2xl font-black italic uppercase tracking-widest flex items-center gap-2 shadow-xl shadow-brand-primary/20">
                   <Save className="w-5 h-5" /> Save Changes
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
+
+      {/* Add User Modal */}
+      {isAddingUser && (
+        <div className="fixed inset-0 z-[100] flex items-center justify-center p-6 backdrop-blur-xl bg-brand-bg/60 animate-in fade-in">
+          <div className="bg-white border border-brand-primary/10 w-full max-w-md rounded-[2.5rem] shadow-2xl relative">
+            <div className="p-8 border-b border-brand-primary/5 flex justify-between items-center bg-brand-secondary/5 rounded-t-[2.5rem]">
+              <h2 className="text-2xl font-black italic text-brand-text">Add <span className="text-brand-primary">Student</span></h2>
+              <button onClick={() => setIsAddingUser(false)} className="p-2 hover:bg-white rounded-full transition-colors"><X className="w-6 h-6 text-brand-text/40" /></button>
+            </div>
+            <form onSubmit={async (e) => {
+              e.preventDefault();
+              setIsSubmitting(true);
+              try {
+                await api.register(newUser.name, newUser.email, newUser.password);
+                await fetchUsers();
+                setIsAddingUser(false);
+              } catch (error: any) {
+                alert(error.message || "Failed to create user");
+              } finally {
+                setIsSubmitting(false);
+              }
+            }} className="p-8 space-y-4">
+              <div className="space-y-2">
+                <label className="text-[10px] font-black uppercase tracking-[0.2em] text-brand-text/40 px-1">Full Name</label>
+                <input required value={newUser.name} onChange={(e) => setNewUser({...newUser, name: e.target.value})} className="w-full bg-brand-secondary/5 border border-brand-primary/10 rounded-xl px-4 py-3 outline-none focus:border-brand-primary/50 text-brand-text font-bold" placeholder="e.g. John Doe" />
+              </div>
+              <div className="space-y-2">
+                <label className="text-[10px] font-black uppercase tracking-[0.2em] text-brand-text/40 px-1">Email</label>
+                <input required type="email" value={newUser.email} onChange={(e) => setNewUser({...newUser, email: e.target.value})} className="w-full bg-brand-secondary/5 border border-brand-primary/10 rounded-xl px-4 py-3 outline-none focus:border-brand-primary/50 text-brand-text font-bold" placeholder="john@example.com" />
+              </div>
+              <div className="space-y-2">
+                <label className="text-[10px] font-black uppercase tracking-[0.2em] text-brand-text/40 px-1">Password</label>
+                <input required type="password" minLength={6} value={newUser.password} onChange={(e) => setNewUser({...newUser, password: e.target.value})} className="w-full bg-brand-secondary/5 border border-brand-primary/10 rounded-xl px-4 py-3 outline-none focus:border-brand-primary/50 text-brand-text font-bold" placeholder="Min. 6 characters" />
+              </div>
+              <div className="pt-4 flex justify-end">
+                <button type="submit" disabled={isSubmitting} className="px-8 py-4 bg-brand-primary hover:opacity-90 disabled:opacity-50 text-white rounded-2xl font-black italic uppercase tracking-widest flex items-center gap-2 shadow-xl shadow-brand-primary/20">
+                  <Save className="w-5 h-5" /> {isSubmitting ? 'Creating...' : 'Create Account'}
                 </button>
               </div>
             </form>

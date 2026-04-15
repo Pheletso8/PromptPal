@@ -3,7 +3,7 @@ import { api } from '../../../utils/api';
 import AdminLayout from '../components/AdminLayout';
 import {
   Settings, Globe, ShieldCheck, Megaphone, BookOpen,
-  Users, BarChart2, Bot, Save, RotateCcw
+  Users, Save, RotateCcw
 } from 'lucide-react';
 
 /* ─── helpers ─────────────────────────────────────────────────────────────── */
@@ -96,16 +96,38 @@ const PlatformConfig = () => {
   const set = (key: keyof typeof DEFAULT_CONFIG, value: any) =>
     setConfig(prev => ({ ...prev, [key]: value }));
 
-  const handleSave = async (e: React.FormEvent) => {
-    e.preventDefault();
+  const handleSave = async (e?: React.FormEvent) => {
+    if (e) e.preventDefault();
     setIsSaving(true);
+    setSaved(false);
+    console.log('[CONFIG] Attempting Save Payload:', config);
     try {
       const updated = await api.updateConfig(config);
+      console.log('[CONFIG] Server Response:', updated);
       setConfig({ ...DEFAULT_CONFIG, ...updated });
       setSaved(true);
       setTimeout(() => setSaved(false), 3000);
-    } catch {
+    } catch (error) {
+      console.error('[CONFIG] Save Failed:', error);
       alert('Failed to save configuration. Please try again.');
+    } finally {
+      setIsSaving(false);
+    }
+  };
+
+  // Immediate save for maintenance mode
+  const toggleMaintenance = async (val: boolean) => {
+    const newConfig = { ...config, maintenanceMode: val };
+    setConfig(newConfig);
+    setIsSaving(true);
+    try {
+      console.log('[CONFIG] Auto-Saving Maintenance Mode:', val);
+      const updated = await api.updateConfig(newConfig);
+      setConfig({ ...DEFAULT_CONFIG, ...updated });
+      setSaved(true);
+      setTimeout(() => setSaved(false), 3000);
+    } catch (error) {
+       alert('Auto-save failed. Please use the Save Config button.');
     } finally {
       setIsSaving(false);
     }
@@ -184,7 +206,7 @@ const PlatformConfig = () => {
             label="Maintenance Mode"
             description="Blocks all student access & shows a maintenance notice"
             checked={config.maintenanceMode}
-            onChange={v => set('maintenanceMode', v)}
+            onChange={v => toggleMaintenance(v)}
           />
           <div className="border-t border-brand-primary/5 pt-6" />
           <Toggle

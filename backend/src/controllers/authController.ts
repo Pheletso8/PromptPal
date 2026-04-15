@@ -99,6 +99,40 @@ export const authUser = async (req: Request, res: Response): Promise<void> => {
   }
 };
 
+// ─── @desc   Authenticate a staff/admin user and get a token ────────────────
+// ─── @route  POST /api/auth/staff
+// ─── @access Public
+export const authStaff = async (req: Request, res: Response): Promise<void> => {
+  try {
+    const { email, password } = req.body;
+    const user = await User.findOne({ email });
+
+    if (!user || user.role !== 'admin') {
+      res.status(401).json({ message: 'Invalid staff credentials' });
+      return;
+    }
+
+    const isMatch = await bcrypt.compare(password, user.password as string);
+    if (!isMatch) {
+      res.status(401).json({ message: 'Invalid staff credentials' });
+      return;
+    }
+
+    res.json({
+      _id: user._id.toString(),
+      name: user.name,
+      email: user.email,
+      role: user.role,
+      stars: user.stars,
+      assessmentsPassed: user.assessmentsPassed,
+      token: generateToken(user._id.toString()),
+    });
+  } catch (error) {
+    console.error('🔥 STAFF LOGIN ERROR:', error);
+    res.status(500).json({ message: 'Server error' });
+  }
+};
+
 // ─── @desc   Get the logged-in user's profile ────────────────────────────────
 // ─── @route  GET /api/auth/profile
 // ─── @access Private
