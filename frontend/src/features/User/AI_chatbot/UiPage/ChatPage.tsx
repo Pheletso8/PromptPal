@@ -21,8 +21,22 @@ const ChatPage: React.FC = () => {
   const [isLoading, setIsLoading] = useState(false);
   const messagesEndRef = useRef<HTMLDivElement>(null);
 
-
   useEffect(() => { messagesEndRef.current?.scrollIntoView({ behavior: "smooth" }); }, [messages, isLoading]);
+
+  const normalizeUrl = (url: string) => url.replace(/\/+$|\s+/g, '');
+  const prettifyAssistantText = (raw: string) => {
+    let text = raw.trim().replace(/\r\n/g, '\n').replace(/\n{3,}/g, '\n\n');
+    text = text.replace(/^(Summary|Key points|Important|Note|Steps|Answer|Explanation|Why):/gmi, '### $1:');
+    text = text.replace(/^(\d+)\.\s+/gm, '$1. ');
+    return text;
+  };
+
+  const extractMermaidDiagram = (content: string) => {
+    const match = /```mermaid\s*([\s\S]*?)```/i.exec(content);
+    return match?.[1].trim();
+  };
+
+  const stripMermaidDiagram = (content: string) => content.replace(/```mermaid[\s\S]*?```/gi, '').trim();
 
   const handleSend = async (text: string) => {
     if (!text.trim()) return;
@@ -32,21 +46,62 @@ const ChatPage: React.FC = () => {
     setIsLoading(true);
 
     try {
-      const CHAT_API_URL = import.meta.env.VITE_CHAT_API_URL || 'https://multi-agent-system-promptpal.onrender.com';
+      const prodChatUrl = import.meta.env.VITE_CHAT_API_URL_PROD?.trim() || 'https://multi-agent-system-promptpal.onrender.com';
+      const envChatUrl = import.meta.env.VITE_CHAT_API_URL?.trim();
+      const useLocalChat = import.meta.env.VITE_CHAT_API_LOCAL === 'true';
+      const isLocalHost = (url: string) => /^(https?:\/\/)?(localhost|127\.0\.0\.1|0\.0\.0\.0|\[::1\])(:\d+)?(\/.*)?$/i.test(url);
+      const shouldProxyLocal = useLocalChat || import.meta.env.DEV || (envChatUrl && isLocalHost(envChatUrl));
+      const CHAT_API_URL = shouldProxyLocal
+        ? '/ask'
+        : envChatUrl
+          ? envChatUrl.toLowerCase().endsWith('/ask')
+            ? normalizeUrl(envChatUrl)
+            : `${normalizeUrl(envChatUrl)}/ask`
+          : `${prodChatUrl.replace(/\/+$/, '')}/ask`;
+
+      console.debug('[ChatPage] sending request to:', { CHAT_API_URL, useLocalChat, envChatUrl, shouldProxyLocal });
+
       const response = await fetch(CHAT_API_URL, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ question: text }),
       });
 
+      if (!response.ok) {
+        const errorText = await response.text();
+        throw new Error(`HTTP ${response.status}: ${errorText}`);
+      }
+
+      const contentType = response.headers.get('content-type') || '';
+      const isJson = contentType.toLowerCase().includes('application/json');
+
+      // Add empty assistant bubble so the UI can show the answer.
+      setMessages(prev => [...prev, { role: 'assistant', content: '' }]);
+
+      if (isJson) {
+        const payload = await response.json();
+        const answerText = payload?.data?.hint ?? payload?.hint ?? payload?.data?.answer ?? payload?.answer ?? '';
+        const prettyText = prettifyAssistantText(String(answerText));
+        const diagram = payload?.data?.diagram ?? payload?.diagram ?? extractMermaidDiagram(prettyText);
+        const finalContent = diagram ? stripMermaidDiagram(prettyText) : prettyText;
+
+        setMessages(prev => {
+          const updated = [...prev];
+          updated[updated.length - 1] = {
+            ...updated[updated.length - 1],
+            content: finalContent,
+            diagram,
+          };
+          return updated;
+        });
+        return;
+      }
+
       if (!response.body) throw new Error("No response body");
 
       const reader = response.body.getReader();
       const decoder = new TextDecoder();
       let fullText = "";
-
-      // Add empty assistant bubble to fill up as we stream
-      setMessages(prev => [...prev, { role: 'assistant', content: "" }]);
 
       while (true) {
         const { done, value } = await reader.read();
@@ -63,20 +118,25 @@ const ChatPage: React.FC = () => {
 
             if (json.type === "hint_delta") {
               fullText += json.delta;
+              const prettyText = prettifyAssistantText(fullText);
               setMessages(prev => {
                 const updated = [...prev];
-                updated[updated.length - 1] = { ...updated[updated.length - 1], content: fullText };
+                updated[updated.length - 1] = { ...updated[updated.length - 1], content: prettyText };
                 return updated;
               });
             }
 
             if (json.type === "complete") {
+              const prettyText = prettifyAssistantText(fullText);
+              const diagram = json.data?.diagram || extractMermaidDiagram(prettyText);
+              const finalContent = diagram ? stripMermaidDiagram(prettyText) : prettyText;
+
               setMessages(prev => {
                 const updated = [...prev];
                 updated[updated.length - 1] = {
                   ...updated[updated.length - 1],
-                  content: fullText,
-                  diagram: json.data?.diagram
+                  content: finalContent,
+                  diagram,
                 };
                 return updated;
               });
