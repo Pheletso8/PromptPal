@@ -46,20 +46,8 @@ const ChatPage: React.FC = () => {
     setIsLoading(true);
 
     try {
-      const prodChatUrl = import.meta.env.VITE_CHAT_API_URL_PROD?.trim() || 'https://multi-agent-system-promptpal.onrender.com';
-      const envChatUrl = import.meta.env.VITE_CHAT_API_URL?.trim();
-      const useLocalChat = import.meta.env.VITE_CHAT_API_LOCAL === 'true';
-      const isLocalHost = (url: string) => /^(https?:\/\/)?(localhost|127\.0\.0\.1|0\.0\.0\.0|\[::1\])(:\d+)?(\/.*)?$/i.test(url);
-      const shouldProxyLocal = useLocalChat || import.meta.env.DEV || (envChatUrl && isLocalHost(envChatUrl));
-      const CHAT_API_URL = shouldProxyLocal
-        ? '/ask'
-        : envChatUrl
-          ? envChatUrl.toLowerCase().endsWith('/ask')
-            ? normalizeUrl(envChatUrl)
-            : `${normalizeUrl(envChatUrl)}/ask`
-          : `${prodChatUrl.replace(/\/+$/, '')}/ask`;
-
-      console.debug('[ChatPage] sending request to:', { CHAT_API_URL, useLocalChat, envChatUrl, shouldProxyLocal });
+      const CHAT_API_URL = 'https://multi-agent-system-promptpal.onrender.com/ask';
+      console.debug('[ChatPage] sending request to:', CHAT_API_URL);
 
       const response = await fetch(CHAT_API_URL, {
         method: 'POST',
