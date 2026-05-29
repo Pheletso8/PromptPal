@@ -23,7 +23,6 @@ const ChatPage: React.FC = () => {
 
   useEffect(() => { messagesEndRef.current?.scrollIntoView({ behavior: "smooth" }); }, [messages, isLoading]);
 
-  const normalizeUrl = (url: string) => url.replace(/\/+$|\s+/g, '');
   const prettifyAssistantText = (raw: string) => {
     let text = raw.trim().replace(/\r\n/g, '\n').replace(/\n{3,}/g, '\n\n');
     text = text.replace(/^(Summary|Key points|Important|Note|Steps|Answer|Explanation|Why):/gmi, '### $1:');
