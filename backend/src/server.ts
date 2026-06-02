@@ -2,6 +2,7 @@ import express from 'express';
 import mongoose from 'mongoose';
 import cors from 'cors';
 import dotenv from 'dotenv';
+
 import authRoutes from './routes/authRoutes';
 import adminRoutes from './routes/adminRoutes';
 import courseRoutes from './routes/courseRoutes';
@@ -14,32 +15,93 @@ dotenv.config();
 const app = express();
 const PORT = process.env.PORT || 5000;
 
-// 1. Body Parsers (FIRST)
+// ----------------------------
+// Body Parsers
+// ----------------------------
 app.use(express.json({ limit: '50mb' }));
 app.use(express.urlencoded({ limit: '50mb', extended: true }));
 
-// 2. Size Logging (For Debugging)
+// ----------------------------
+// Payload Size Logging
+// ----------------------------
 app.use((req, res, next) => {
   const size = req.get('content-length');
+
   if (size) {
-    console.log(`[PAYLOAD] ${req.method} ${req.url} - Size: ${(parseInt(size) / (1024 * 1024)).toFixed(2)} MB`);
+    console.log(
+      `[PAYLOAD] ${req.method} ${req.url} - Size: ${(
+        parseInt(size) /
+        (1024 * 1024)
+      ).toFixed(2)} MB`
+    );
   }
+
   next();
 });
 
-// 3. CORS
-app.use(cors({
-  origin: '*',
-  credentials: true
-}));
+// ----------------------------
+// CORS
+// ----------------------------
+app.use(
+  cors({
+    origin: '*',
+    credentials: true,
+  })
+);
 
-// 4. Request logger
+// ----------------------------
+// Request Logger
+// ----------------------------
 app.use((req, res, next) => {
-  console.log(`[${new Date().toISOString()}] ${req.method} ${req.url}`);
+  console.log(
+    `[${new Date().toISOString()}] ${req.method} ${req.url}`
+  );
   next();
 });
 
-// Routes
+// ====================================================
+// UPTIMEROBOT HEALTH CHECKS
+// ====================================================
+
+// Root endpoint
+app.get('/', (req, res) => {
+  res.status(200).json({
+    status: 'UP',
+    service: 'PromptPal API',
+    timestamp: new Date().toISOString(),
+  });
+});
+
+app.head('/', (req, res) => {
+  res.sendStatus(200);
+});
+
+// Dedicated health endpoint
+app.get('/health', (req, res) => {
+  res.status(200).json({
+    status: 'UP',
+    database:
+      mongoose.connection.readyState === 1
+        ? 'Connected'
+        : 'Disconnected',
+    uptime: process.uptime(),
+    timestamp: new Date().toISOString(),
+  });
+});
+
+app.head('/health', (req, res) => {
+  res.sendStatus(200);
+});
+
+// Alternative one-line catch-all health route
+app.all('/ping', (req, res) => {
+  res.sendStatus(200);
+});
+
+// ====================================================
+// API ROUTES
+// ====================================================
+
 app.use('/api/auth', authRoutes);
 app.use('/api/admin', adminRoutes);
 app.use('/api/courses', courseRoutes);
@@ -47,27 +109,36 @@ app.use('/api/assessments', assessmentRoutes);
 app.use('/api/leaderboard', leaderboardRoutes);
 app.use('/api/config', configRoutes);
 
-// Health check endpoint
+// Existing status endpoint
 app.get('/api/status', (req, res) => {
-  const dbStatus = mongoose.connection.readyState === 1 ? 'Connected' : 'Disconnected';
+  const dbStatus =
+    mongoose.connection.readyState === 1
+      ? 'Connected'
+      : 'Disconnected';
+
   res.json({
     status: 'Server is running',
     database: dbStatus,
-    timestamp: new Date().toISOString()
+    timestamp: new Date().toISOString(),
   });
 });
 
-// Start Server
-app.listen(PORT as number, '0.0.0.0', () => {
-  console.log(`Server is running on port ${PORT}`);
+// ====================================================
+// START SERVER
+// ====================================================
 
-  // Database Connection (asynchronous)
-  mongoose.connect(process.env.MONGO_URI as string)
+app.listen(PORT as number, '0.0.0.0', () => {
+  console.log(`Server running on port ${PORT}`);
+
+  mongoose
+    .connect(process.env.MONGO_URI as string)
     .then(() => {
       console.log('Connected to MongoDB');
     })
     .catch((error) => {
       console.error('MongoDB connection error:', error);
-      console.warn('Note: The server is running but requests requiring a database will fail until connected.');
+      console.warn(
+        'Server remains online, but database-dependent requests will fail.'
+      );
     });
 });

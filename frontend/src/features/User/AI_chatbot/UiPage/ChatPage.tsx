@@ -16,7 +16,7 @@ interface Message {
 const ChatPage: React.FC = () => {
 
   const [messages, setMessages] = useState<Message[]>([
-    { role: 'assistant', content: "Holo! 🇿🇦 I'm **PromptPal**. Ready for some Maths or Science?" }
+    { role: 'assistant', content: "Hola! I'm **PromptPal**. Ready to understand your work, no copy and paste?" }
   ]);
   const [isLoading, setIsLoading] = useState(false);
   const messagesEndRef = useRef<HTMLDivElement>(null);
