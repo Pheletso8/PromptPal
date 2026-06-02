@@ -45,7 +45,10 @@ const ChatPage: React.FC = () => {
     setIsLoading(true);
 
     try {
-      const CHAT_API_URL = 'https://multi-agent-system-promptpal.onrender.com/ask';
+      const useLocalChatApi = import.meta.env.DEV || import.meta.env.VITE_CHAT_API_LOCAL === 'true';
+      const CHAT_API_URL = useLocalChatApi
+        ? '/ask'
+        : (import.meta.env.VITE_CHAT_API_URL_PROD ?? 'https://promptpal-api.onrender.com').replace(/\/$/, '');
       console.debug('[ChatPage] sending request to:', CHAT_API_URL);
 
       const response = await fetch(CHAT_API_URL, {
@@ -67,7 +70,28 @@ const ChatPage: React.FC = () => {
 
       if (isJson) {
         const payload = await response.json();
-        const answerText = payload?.data?.hint ?? payload?.hint ?? payload?.data?.answer ?? payload?.answer ?? '';
+
+        // Try a variety of possible fields the backend might return
+        let answerText: any = payload?.data?.hint ?? payload?.hint ?? payload?.data?.answer ?? payload?.answer ?? payload?.data?.content ?? payload?.content ?? payload?.message ?? '';
+
+        // If the field itself is an object, try to extract common keys
+        if (typeof answerText === 'object' && answerText !== null) {
+          answerText = answerText.content ?? answerText.answer ?? answerText.hint ?? JSON.stringify(answerText);
+        }
+
+        // If the backend returned a JSON-string inside a string, try to parse it
+        if (typeof answerText === 'string') {
+          const trimmed = answerText.trim();
+          if ((trimmed.startsWith('{') || trimmed.startsWith('[')) && trimmed.endsWith('}')) {
+            try {
+              const nested = JSON.parse(trimmed);
+              answerText = nested.content ?? nested.answer ?? nested.hint ?? nested.message ?? JSON.stringify(nested);
+            } catch (e) {
+              // leave as-is
+            }
+          }
+        }
+
         const prettyText = prettifyAssistantText(String(answerText));
         const diagram = payload?.data?.diagram ?? payload?.diagram ?? extractMermaidDiagram(prettyText);
         const finalContent = diagram ? stripMermaidDiagram(prettyText) : prettyText;
@@ -103,7 +127,8 @@ const ChatPage: React.FC = () => {
           try {
             const json = JSON.parse(line.replace("data: ", ""));
 
-            if (json.type === "hint_delta") {
+            // SSE delta streaming format
+            if (json.type === "hint_delta" && typeof json.delta === 'string') {
               fullText += json.delta;
               const prettyText = prettifyAssistantText(fullText);
               setMessages(prev => {
@@ -113,9 +138,29 @@ const ChatPage: React.FC = () => {
               });
             }
 
-            if (json.type === "complete") {
+            // Complete signal
+            else if (json.type === "complete") {
               const prettyText = prettifyAssistantText(fullText);
               const diagram = json.data?.diagram || extractMermaidDiagram(prettyText);
+              const finalContent = diagram ? stripMermaidDiagram(prettyText) : prettyText;
+
+              setMessages(prev => {
+                const updated = [...prev];
+                updated[updated.length - 1] = {
+                  ...updated[updated.length - 1],
+                  content: finalContent,
+                  diagram,
+                };
+                return updated;
+              });
+            }
+
+            // Some backends may send a plain object with `content` or `message` fields
+            else if (json.content || json.message || json.answer || json.hint) {
+              const raw = json.content ?? json.message ?? json.answer ?? json.hint ?? '';
+              fullText += typeof raw === 'string' ? raw : JSON.stringify(raw);
+              const prettyText = prettifyAssistantText(fullText);
+              const diagram = json.diagram ?? json.data?.diagram ?? extractMermaidDiagram(prettyText);
               const finalContent = diagram ? stripMermaidDiagram(prettyText) : prettyText;
 
               setMessages(prev => {
