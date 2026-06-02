@@ -32,7 +32,11 @@ export default function ChatScreen() {
     setIsLoading(true);
 
     try {
-      const CHAT_API_URL = 'https://multi-agent-system-promptpal.onrender.com';
+      const useLocalChatApi = typeof __DEV__ !== 'undefined' ? __DEV__ : false;
+      const CHAT_API_BASE = useLocalChatApi
+        ? (process.env.EXPO_PUBLIC_LOCAL_API_URL || 'http://localhost:8000')
+        : (process.env.EXPO_PUBLIC_REMOTE_API_URL || 'https://promptpal-api.onrender.com');
+      const CHAT_API_URL = CHAT_API_BASE.replace(/\/$/, '') + (useLocalChatApi ? '/ask' : '');
       const response = await fetch(CHAT_API_URL, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -52,15 +56,24 @@ export default function ChatScreen() {
       let diagram = "";
 
       for (const line of lines) {
-        if (!line.startsWith("data: ")) continue;
+        // accept both SSE `data: {...}` lines and raw JSON lines
+        const maybe = line.startsWith("data: ") ? line.replace("data: ", "") : line;
+        if (!maybe.trim()) continue;
         try {
-          const json = JSON.parse(line.replace("data: ", ""));
-          if (json.type === "hint_delta") {
+          const json = JSON.parse(maybe);
+
+          if (json.type === "hint_delta" && typeof json.delta === 'string') {
             fullText += json.delta;
+          } else if (json.type === "complete") {
+            fullText = json.data?.content ?? json.content ?? fullText;
+            diagram = json.data?.diagram ?? json.diagram;
           }
-          if (json.type === "complete") {
-            fullText = json.data?.content || fullText;
-            diagram = json.data?.diagram;
+
+          // If backend sends a simple object with `content`/`message`/`answer`
+          else if (json.content || json.message || json.answer || json.hint) {
+            const raw = json.content ?? json.message ?? json.answer ?? json.hint ?? '';
+            fullText += typeof raw === 'string' ? raw : JSON.stringify(raw);
+            diagram = diagram || json.diagram || json.data?.diagram;
           }
         } catch (e) {}
       }
