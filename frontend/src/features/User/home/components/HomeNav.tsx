@@ -77,7 +77,7 @@ const HomeNav = () => {
 
           <button
             onClick={handleLogout}
-            className="text-gray-400 hover:text-white transition-colors p-2.5 rounded-full hover:bg-red-500 hover:shadow-md hover:-translate-y-0.5 border border-transparent hover:border-red-500/20 bg-white shadow-sm ml-1"
+            className="text-gray-400 cursor-pointer hover:text-white transition-colors p-2.5 rounded-full hover:bg-red-500 hover:shadow-md hover:-translate-y-0.5 border border-transparent hover:border-red-500/20 bg-white shadow-sm ml-1"
             title="Logout"
           >
             <LogOut className="w-4 h-4" />

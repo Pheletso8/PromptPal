@@ -22,7 +22,7 @@ export const PromptIntroduction = () => (
         
         <div className="space-y-4 text-brand-text/70 text-sm md:text-base leading-relaxed max-w-2xl">
           <p>
-            Imagine you have a <span className="text-brand-text font-bold">Super Robot</span> that is incredibly smart but needs very clear directions to work. If you give it a vague instruction, it might get confused.
+            Imagine you have a <span className="text-brand-text font-bold">Super Robot</span> that is incredibly smart but needs very clear directions to work. If you give it an <span className='text-brand-primary italic font-bold'>"unclear" </span> instruction, it might get confused.
           </p>
           <p>
             <span className="text-brand-primary font-bold">Prompt Engineering</span> is simply the art of talking to AI in a way that it understands perfectly. It means using clear, simple, and specific words to tell the computer exactly what you want it to do.

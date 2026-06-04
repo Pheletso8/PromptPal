@@ -53,7 +53,7 @@ const ProfilePage = () => {
       <main className="max-w-3xl mx-auto pt-32 px-6 pb-20">
         <button 
           onClick={() => navigate('/home')}
-          className="flex items-center text-brand-text/50 hover:text-brand-primary transition-colors mb-8 group font-bold text-sm uppercase tracking-widest"
+          className="flex cursor-pointer bg-black/10 p-2 rounded-md hover:bg-black/30 items-center text-brand-text/50 hover:text-brand-primary transition-colors mb-8 group font-bold text-sm uppercase tracking-widest"
         >
           <ArrowLeft className="w-4 h-4 mr-2 group-hover:-translate-x-1 transition-transform" />
           Back to Dashboard

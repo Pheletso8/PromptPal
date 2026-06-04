@@ -59,7 +59,7 @@ const HomePage: React.FC = () => {
         <ContinueLearning courses={courses} />
 
         {/* AI Tutor promo */}
-        <section className="mb-14 p-8 md:p-10 rounded-[2rem] bg-gradient-to-br from-brand-primary/10 via-brand-secondary/5 to-transparent border border-white flex flex-col md:flex-row items-center justify-between gap-6 shadow-[0_8px_30px_rgb(0,0,0,0.04)]">
+        <section className="mb-14 p-8 md:p-10 rounded-4xl bg-linear-to-br from-brand-primary/10 via-brand-secondary/5 to-transparent border border-white flex flex-col md:flex-row items-center justify-between gap-6 shadow-[0_8px_30px_rgb(0,0,0,0.04)]">
           <div className="flex items-center gap-6">
             <div className="w-16 h-16 hidden sm:flex items-center justify-center bg-white rounded-full shadow-sm text-3xl">✨</div>
             <div>

@@ -22,7 +22,7 @@ export const Hero = () => (
       turn AI into your ultimate advantage.
     </p>
     <div className="flex flex-col items-center space-y-6">
-      <Link to="/home" className="bg-brand-primary text-white px-10 py-4 rounded-full font-bold text-lg hover:opacity-90 hover:shadow-[0_0_20px_rgba(206,56,190,0.4)] transition-all">
+      <Link to="/auth" className="bg-brand-primary text-white px-10 py-4 rounded-full font-bold text-lg hover:opacity-90 hover:shadow-[0_0_20px_rgba(206,56,190,0.4)] transition-all">
         Start Learning Now <MoveUpRight className="inline-block ml-2" />
       </Link>
       <div className="inline-flex items-center px-4 py-2 rounded-full border border-brand-primary/30 bg-brand-primary/10 text-brand-primary text-sm font-medium backdrop-blur-sm">

@@ -121,7 +121,9 @@ const CourseDetail: React.FC = () => {
           {/* Why Learn */}
           {course.whyLearn && (
             <section className="mb-16 max-w-3xl">
-              <h2 className="text-brand-primary font-black uppercase tracking-[0.3em] text-[10px] mb-4">Why we learn this</h2>
+              <h2 className="text-brand-primary font-black uppercase tracking-[0.3em] text-[10px] mb-4">
+                Why we learn to prompt for specific Subjects
+              </h2>
               <p className="text-brand-text/70 text-xl leading-relaxed font-light italic">"{course.whyLearn}"</p>
             </section>
           )}
@@ -140,6 +142,7 @@ const CourseDetail: React.FC = () => {
           )}
 
           {/* Prompting Lab */}
+
           {(course.templates?.length ?? 0) > 0 && (
             <section className="mb-20 p-10 rounded-[2.5rem] border border-brand-primary/20 bg-brand-primary/5 backdrop-blur-md">
               <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-8 gap-4">
@@ -158,6 +161,32 @@ const CourseDetail: React.FC = () => {
               <div className="grid gap-6">
                 {course.templates.map((t, idx) => {
                   const key = t._id || String(idx);
+                  
+                  // Helper function to format text, handle line breaks, and bold **words**
+                  const formatPromptText = (text: string) => {
+                    return text.split('\n').map((line, lineIdx) => {
+                      // Regex to find text wrapped in **asterisks** for highlighting
+                      const parts = line.split(/(\*\*.*?\*\*)/g);
+                      
+                      const renderedLine = parts.map((part, partIdx) => {
+                        if (part.startsWith('**') && part.endsWith('**')) {
+                          return (
+                            <strong key={partIdx} className="font-extrabold text-brand-primary not-italic bg-brand-primary/5 px-1.5 py-0.5 rounded border border-brand-primary/10">
+                              {part.slice(2, -2)}
+                            </strong>
+                          );
+                        }
+                        return part;
+                      });
+
+                      return (
+                        <span key={lineIdx} className="block min-h-[1.5rem]">
+                          {renderedLine}
+                        </span>
+                      );
+                    });
+                  };
+
                   return (
                     <div key={key} className="p-6 rounded-2xl bg-white border border-brand-primary/10 group hover:border-brand-primary/30 transition-all duration-300 shadow-sm">
                       <div className="flex justify-between items-start mb-4">
@@ -182,8 +211,11 @@ const CourseDetail: React.FC = () => {
                           )}
                         </button>
                       </div>
+                      {/* Styled container with white-space rules and natural gap separation */}
                       <div className="relative p-5 rounded-xl bg-brand-secondary/10 border border-brand-primary/5">
-                        <p className="font-mono text-sm text-brand-text/60 leading-relaxed italic">{t.prompt}</p>
+                        <div className="font-mono text-sm text-brand-text/70 leading-relaxed italic space-y-3 whitespace-pre-line">
+                          {formatPromptText(t.prompt)}
+                        </div>
                       </div>
                     </div>
                   );
@@ -191,6 +223,7 @@ const CourseDetail: React.FC = () => {
               </div>
             </section>
           )}
+
 
           {/* Assessment / Quiz */}
           {((course.assessments?.length ?? 0) > 0 || course.assessment) && (

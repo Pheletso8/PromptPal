@@ -18,7 +18,7 @@ const Landing: React.FC = () => {
   if (loading) return <Loader />;
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-brand-bg via-white to-brand-secondary/5 text-brand-text font-sans selection:bg-brand-primary/30 overflow-x-hidden animate-in fade-in duration-1000">
+    <div className="min-h-screen bg-linear-to-br from-brand-bg via-white to-brand-secondary/5 text-brand-text font-sans selection:bg-brand-primary/30 overflow-x-hidden animate-in fade-in duration-1000">
       <Navbar />
       <Hero />
 
@@ -47,7 +47,7 @@ const Landing: React.FC = () => {
               initial={{ opacity: 0, y: 16 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.45, delay: index * 0.12 }}
-              className="bg-white/90 border border-brand-primary/10 rounded-[2rem] p-8 shadow-[0_24px_60px_rgba(0,0,0,0.06)] hover:shadow-[0_28px_70px_rgba(0,0,0,0.08)] transition-all"
+              className="bg-white/90 border border-brand-primary/10 rounded-4xl p-8 shadow-[0_24px_60px_rgba(0,0,0,0.06)] hover:shadow-[0_28px_70px_rgba(0,0,0,0.08)] transition-all"
             >
               <div className="w-14 h-14 rounded-3xl bg-brand-primary/10 text-brand-primary grid place-items-center mb-6">
                 <Icon className="w-7 h-7" />
