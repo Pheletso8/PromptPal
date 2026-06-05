@@ -18,7 +18,7 @@ export const ChatHeader = () => (
         {/* Exit Button */}
         <Link 
           to="/home" 
-          className="text-[10px] font-black text-brand-text/40 hover:text-brand-primary uppercase tracking-[0.2em] transition-all border border-brand-primary/10 px-5 py-2.5 rounded-full hover:bg-brand-primary/5 bg-white shadow-sm"
+          className="text-[10px] bg-brand-secondary/60 hover:bg-brand-secondary/80 p-3 rounded-md font-black uppercase tracking-[0.2em] transition-all border border-brand-primary/10 px-5 py-2.5 rounded-full hover:bg-brand-primary/5 bg-white shadow-sm"
         >
           Exit Lab
         </Link>

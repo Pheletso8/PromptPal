@@ -12,7 +12,7 @@ export const DetailNav = () => {
         </Link>
         <button 
           onClick={() => navigate('/home')}
-          className="text-[10px] font-black italic uppercase tracking-widest text-brand-text/40 hover:text-brand-primary transition-all cursor-pointer"
+          className="text-[10px] bg-brand-secondary/60 hover:bg-brand-secondary/80 p-3 rounded-md font-black uppercase tracking-widest text-brand-text/80 hover:text-brand-primary transition-all cursor-pointer"
         >
           Back to Dashboard
         </button>
